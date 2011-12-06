@@ -1,0 +1,51 @@
+body{
+  margin:3px;
+}
+
+#header{
+  border-bottom:1px #000 dashed;
+  padding: 0px 0px 5px;
+}
+
+.buttonbar{
+  clear:both;
+  text-align:right;
+  font-size: small;
+}
+
+.tweet{
+  clear:both;
+  padding: 3px;
+  border:dashed;
+  border-width:0px 1px 1px;
+}
+
+.reply{
+  clear:both;
+  padding: 3px;
+  border:dashed;
+  border-width:0px 1px 1px;
+}
+
+.text{
+  margin-left: 52px;
+  line-height: 1.3em;
+}
+
+.profile{
+  float:left;
+}
+
+.small{
+  font-size: small;
+  color:#999;
+}
+
+img.profile{
+  width:48px;
+  height:48px;
+}
+
+#footer {
+  clear:both
+}
