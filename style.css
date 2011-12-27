@@ -25,6 +25,7 @@ body{
   padding: 3px;
   border:dashed;
   border-width:0px 1px 1px;
+  background-color: #eef;
 }
 
 .text{
@@ -39,6 +40,14 @@ body{
 .small{
   font-size: small;
   color:#999;
+}
+
+a {
+  color: #1212ff;
+}
+
+.small a {
+  color: #999;
 }
 
 img.profile{
