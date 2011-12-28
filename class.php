@@ -7,7 +7,8 @@ class Config {
   const CONSUMER_KEY = 'OpniMtplTig4URUFZFzHLQ';
   const CONSUMER_SECRET = 'c471g7F3GWOnFZLrftYfYR0jkSvFL4Fi52XzeJ4zRc';
   const OAUTH_CALLBACK = 'http://npsptter.dip.jp/?callback';
-  const ROOT_ADDRESS = "http://npsptter.dip.jp/";
+  const ROOT_ADDRESS = 'http://npsptter.dip.jp/';
+  const CACHE_RIMIT = '600';
 }
 
 class Authering {
@@ -78,6 +79,7 @@ class Twitter {
   }
 
   public function Tweet($type, $content) {
+    $this->type = $type;
     if ($type == 'tweet') {
 //ツイート
       if ($content['id'] > 999999999999999999) {
@@ -130,7 +132,7 @@ class Twitter {
     } else if ($type == 'retweeted_to_me') {
       $type = 'statuses/retweeted_to_me';
     } else if ($type == 'favorites') {
-
+      
     } else if ($type == 'user_timeline') {
       $type = 'statuses/user_timeline';
     } else if ($type == 'friends') {
@@ -151,10 +153,10 @@ class Twitter {
       $m->pconnect('localhost', 11211);
       $this->cache = $m->get($this->access_token['screen_name'] . ':' . $type);
       if (strtotime($this->cache[0]->created_at) >= strtotime($this->status[0]->created_at)) {
-        $m->set($this->access_token['screen_name'] . ':' . $type, $this->cache, false, 600);
+        $m->set($this->access_token['screen_name'] . ':' . $type, $this->cache, false, Config::CACHE_RIMIT);
         return $this->cache;
       } else {
-        $m->set($this->access_token['screen_name'] . ':' . $type, $this->status, false, 600);
+        $m->set($this->access_token['screen_name'] . ':' . $type, $this->status, false, Config::CACHE_RIMIT);
         return $this->status;
       }
     } else {
@@ -203,10 +205,10 @@ class Twitter {
     if ($screen_name == $this->access_token['screen_name']) {
 //ツイートの削除ボタン、RT、非公式RTを実装
       $destroy = ' | <a href="' . Config::ROOT_ADDRESS . 'tweet.php?destroy=' . $id . '">消</a>';
-      $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars('RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | ';
+      $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | ';
     } else {
       $destroy = null;
-      $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars('RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | <a href="' . Config::ROOT_ADDRESS . 'tweet.php?retweet=' . $id . '">RT</a> | ';
+      $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | <a href="' . Config::ROOT_ADDRESS . 'tweet.php?retweet=' . $id . '">RT</a> | ';
     }
 //ふぁぼ
     if ($favorited) {
@@ -265,6 +267,12 @@ class Twitter {
       $retweetstatus = $retweeted_user . 'がリツイート　' . $retweetstatus;
     }
     return $retweetstatus;
+  }
+
+  public function UserProfile() {
+    if ($this->type == 'user_timeline') {
+      $this->status[0]->user;
+    }
   }
 
 }

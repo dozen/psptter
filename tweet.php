@@ -9,7 +9,12 @@ try {
 }
 //投稿系の処理。
 if (isset($_POST['tweet'])) {
-  $twitter->Tweet('tweet', array('tweet' => $_POST['tweet'], 'id' => $_POST['id']));
+  if ($_COOKIE['footer'] && !$_POST['id']) {
+    $tweet = $_POST['tweet'] . ' ' . $_COOKIE['footer'];
+  } else {
+    $tweet = $_POST['tweet'];
+  }
+  $twitter->Tweet('tweet', array('tweet' => $tweet, 'id' => $_POST['id']));
 } else if (isset($_GET['retweet'])) {
   $twitter->Tweet('retweet', array('id' => $_GET['retweet']));
 } else if (isset($_GET['fav'])) {

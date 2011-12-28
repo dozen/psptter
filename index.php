@@ -16,7 +16,6 @@ if (isset($_GET['clear'])) {
 //これもテスト用
 if (isset($_GET['count'])) {
   setcookie('count', $_GET['count'], time() + 60 * 60 * 24 * 30, '/');
-  unset($_GET['count']);
 }
 
 //インスタンス作成
@@ -38,6 +37,8 @@ if ($_GET['status_id']) {
 if (isset($_GET['debug'])) {
   header('content-type:text/plain');
   print_r($_GET);
+  echo "\n";
+  print_r($twitter->status);
 }
 ?>
 <!DOCTYPE html>
@@ -51,7 +52,7 @@ if (isset($_GET['debug'])) {
   <body>
     <div id="header">
       <div>
-        <a href="<?php echo Config::ROOT_ADDRESS ?>">ホーム</a> <a href="<?php echo Config::ROOT_ADDRESS ?>mentions/">返信</a> <a href="<?php echo Config::ROOT_ADDRESS ?>retweets_of_me/">RTされた</a> <a href="<?php echo Config::ROOT_ADDRESS ?>retweeted_by_me/">RTした</a> <a href="<?php echo Config::ROOT_ADDRESS ?>retweeted_to_me/">みんなのRT</a> <a href="<?php echo Config::ROOT_ADDRESS ?>favorites/">ふぁぼ</a> <a href="<?php echo Config::ROOT_ADDRESS ?>search/">検索</a>
+        <a href="<?php echo Config::ROOT_ADDRESS ?>">ホーム</a> <a href="<?php echo Config::ROOT_ADDRESS ?>mentions/">返信</a> <a href="<?php echo Config::ROOT_ADDRESS ?>retweets_of_me/">RTされた</a> <a href="<?php echo Config::ROOT_ADDRESS ?>retweeted_by_me/">RTした</a> <a href="<?php echo Config::ROOT_ADDRESS ?>retweeted_to_me/">みんなのRT</a> <a href="<?php echo Config::ROOT_ADDRESS ?>favorites/">ふぁぼ</a> <a href="<?php echo Config::ROOT_ADDRESS ?>search/">検索</a> <a href="<?php echo Config::ROOT_ADDRESS ?>setting/">設定</a>
       </div>
       <form name="post" method="post" action="<?php echo Config::ROOT_ADDRESS ?>tweet.php">
         <textarea rows="2" cols="40" name="tweet"></textarea>
@@ -67,17 +68,17 @@ if (isset($_GET['debug'])) {
         </div>
         <div class="text">
           <a href="<?php echo Config::ROOT_ADDRESS . $line->user->screen_name ?>/"><?php echo $line->user->screen_name ?></a> <span class="small"><?php echo $line->user->name ?>　<?php echo $line->source ?>から</span><br>
-  <?php echo nl2br(Twitter::StatusProcessing($line->text)) ?>
+          <?php echo nl2br(Twitter::StatusProcessing($line->text)) ?>
         </div>
         <div class="buttonbar">
           <span class="small"><?php echo Twitter::RetweetStatus($line->retweet_count, $line->retweeted_user) ?><?php echo $twitter->time($line->created_at) ?></span>
-  <?php echo $twitter->ToolBar($line->user->screen_name, $line->favorited, $line->id, $line->text, $line->id, $line->in_reply_to_status_id) ?>
+          <?php echo $twitter->ToolBar($line->user->screen_name, $line->favorited, $line->id, $line->text, $line->id, $line->in_reply_to_status_id) ?>
         </div>
       </div>
-      <?php } ?>
+    <?php } ?>
     <div id="footer">
       <?php echo Pagenation::Navi($_GET['page'], "") ?><br>
-<?php echo $stopwatch->Show() . ' 秒' ?>
+      <?php echo $stopwatch->Show() . ' 秒' ?>
     </div>
   </body>
 </html>
