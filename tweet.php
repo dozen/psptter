@@ -14,6 +14,7 @@ if (isset($_POST['tweet'])) {
   } else {
     $tweet = $_POST['tweet'];
   }
+  $tweet = aa($tweet);
   $twitter->Tweet('tweet', array('tweet' => $tweet, 'id' => $_POST['id']));
 } else if (isset($_GET['retweet'])) {
   $twitter->Tweet('retweet', array('id' => $_GET['retweet']));

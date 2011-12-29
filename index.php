@@ -9,13 +9,8 @@ if (isset($_GET['redirect'])) {
 }
 
 //テスト用。
-if (isset($_GET['clear'])) {
-  session_destroy();
-}
-
-//これもテスト用
-if (isset($_GET['count'])) {
-  setcookie('count', $_GET['count'], time() + 60 * 60 * 24 * 30, '/');
+if (isset($_GET['logout'])) {
+  Authering::Logout();
 }
 
 //インスタンス作成
@@ -63,8 +58,8 @@ if (isset($_GET['debug'])) {
     <?php foreach ($status as $line) {
       $line = Twitter::Retweet($line); ?>
       <div class="<?php echo $twitter->JudgeReply($line->text) ?>">
-        <div class="profile">
-          <img class="profile" src="<?php echo $line->user->profile_image_url ?>">
+        <div class="icon">
+          <img class="icon" src="<?php echo $line->user->profile_image_url ?>">
         </div>
         <div class="text">
           <a href="<?php echo Config::ROOT_ADDRESS . $line->user->screen_name ?>/"><?php echo $line->user->screen_name ?></a> <span class="small"><?php echo $line->user->name ?>　<?php echo $line->source ?>から</span><br>
@@ -77,8 +72,12 @@ if (isset($_GET['debug'])) {
       </div>
     <?php } ?>
     <div id="footer">
-      <?php echo Pagenation::Navi($_GET['page'], "") ?><br>
-      <?php echo $stopwatch->Show() . ' 秒' ?>
+      <div style="float:left">
+        <?php echo Pagenation::Navi($_GET['page'], "") ?>
+      </div>
+      <div style="text-align:right">
+        <?php echo $stopwatch->Show() . ' 秒' ?> <a href="<?php echo Config::ROOT_ADDRESS ?>?logout">logout</a>
+      </div>
     </div>
   </body>
 </html>

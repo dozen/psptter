@@ -36,9 +36,9 @@ if ($_GET['s']) {
     </div>
     <?php foreach ($status as $line) {
       $line = Twitter::Retweet($line); ?>
-      <div class="tweet">
-        <div class="profile">
-          <img class="profile" src="<?php echo $line->profile_image_url ?>">
+      <div class="normal">
+        <div class="icon">
+          <img class="icon" src="<?php echo $line->profile_image_url ?>">
         </div>
         <div class="text">
           <a href="<?php echo Config::ROOT_ADDRESS . $line->from_user ?>/"><?php echo $line->from_user ?></a> <span class="small"><?php echo $line->from_user_name ?></span><br>
@@ -50,8 +50,12 @@ if ($_GET['s']) {
       </div>
     <?php } ?>
     <div id="footer">
-      <?php echo Pagenation::Navi($_GET['page'], $_GET['s']) ?><br>
-      <?php echo $stopwatch->Show() . ' 秒' ?>
+      <div style="float:left">
+        <?php echo Pagenation::Navi($_GET['page'], "") ?>
+      </div>
+      <div style="text-align:right">
+        <?php echo $stopwatch->Show() . ' 秒' ?> <a href="<?php echo Config::ROOT_ADDRESS ?>?logout">logout</a>
+      </div>
     </div>
   </body>
 </html>

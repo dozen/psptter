@@ -14,7 +14,7 @@ body{
   font-size: small;
 }
 
-.tweet{
+.normal{
   clear:both;
   padding: 3px;
   border:dashed;
@@ -35,7 +35,7 @@ body{
   line-height: 1.3em;
 }
 
-.profile{
+.icon{
   float:left;
 }
 
@@ -58,5 +58,6 @@ img.profile{
 }
 
 #footer {
-  clear:both
+  clear:both;
+  margin: 5px;
 }
