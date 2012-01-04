@@ -21,7 +21,7 @@ String.prototype.replaceAll = function (org, dest){
 }
 
 var request = null;
-function makeRequest(id, count, sendtype) {
+function makeRequest(user_id, count, sendtype) {
   if(typeof window.XMLHttpRequest != 'undefined') {
     try {
       request = new XMLHttpRequest();
@@ -37,7 +37,7 @@ function makeRequest(id, count, sendtype) {
       document.getElementById(count).innerHTML=('\u614c\u3066\u306a\u3044\u3067\uff01');
     }
   }
-  request.open(POST, 'http://npsptter.dip.jp/sendlojax.php', true);
+  request.open('POST', 'http://npsptter.dip.jp/sendlojax.php', true);
   request.setRequestHeader('Content-type', 'text/plain;charset=utf-8');
-  request.send(sendtype + '=' + id);
+  request.send(sendtype + '=' + uer_id);
 }
