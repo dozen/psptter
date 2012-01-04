@@ -39,5 +39,5 @@ function makeRequest(id, count, sendtype) {
   }
   request.open(POST, 'http://npsptter.dip.jp/sendlojax.php', true);
   request.setRequestHeader('Content-type', 'text/plain;charset=utf-8');
-  request.send(type + '=' + id);
+  request.send(sendtype + '=' + id);
 }
