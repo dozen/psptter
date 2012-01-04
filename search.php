@@ -13,7 +13,6 @@ try {
 //検索結果の取得
 if ($_GET['s']) {
   $status = $twitter->GetSearch($_GET)->results;
-  unset($_GET['s']);
 }
 ?>
 
@@ -30,8 +29,8 @@ if ($_GET['s']) {
         <a href="<?php echo Config::ROOT_ADDRESS ?>">ホーム</a> <a href="<?php echo Config::ROOT_ADDRESS ?>mentions/">返信</a> <a href="<?php echo Config::ROOT_ADDRESS ?>retweets_of_me/">RTされた</a> <a href="<?php echo Config::ROOT_ADDRESS ?>retweeted_by_me/">RTした</a> <a href="<?php echo Config::ROOT_ADDRESS ?>retweeted_to_me/">みんなのRT</a> <a href="<?php echo Config::ROOT_ADDRESS ?>favorites/">ふぁぼ</a> <a href="<?php echo Config::ROOT_ADDRESS ?>search/">検索</a> <a href="<?php echo Config::ROOT_ADDRESS ?>setting/">設定</a>
       </div>
       <form method="get" action="<?php echo Config::ROOT_ADDRESS ?>search/">
-        <textarea rows="2" cols="40" name="s"></textarea>
-        <input type="submit" value="検索">
+        <textarea name="s"></textarea>
+        <input type="submit" class="button" value="検索">
       </form>
     </div>
     <?php foreach ($status as $line) {
@@ -51,7 +50,7 @@ if ($_GET['s']) {
     <?php } ?>
     <div id="footer">
       <div style="float:left">
-        <?php echo Pagenation::Navi($_GET['page'], "") ?>
+        <?php echo Pagenation::Navi($_GET['page'], $_GET['s']) ?>
       </div>
       <div style="text-align:right">
         <?php echo $stopwatch->Show() . ' 秒' ?> <a href="<?php echo Config::ROOT_ADDRESS ?>?logout">logout</a>

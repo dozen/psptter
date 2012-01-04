@@ -8,15 +8,7 @@ try {
   Authering::Redirect();
 }
 //投稿系の処理。
-if (isset($_POST['tweet'])) {
-  if ($_COOKIE['footer'] && !$_POST['id']) {
-    $tweet = $_POST['tweet'] . ' ' . $_COOKIE['footer'];
-  } else {
-    $tweet = $_POST['tweet'];
-  }
-  $tweet = aa($tweet);
-  $twitter->Tweet('tweet', array('tweet' => $tweet, 'id' => $_POST['id']));
-} else if (isset($_GET['retweet'])) {
+if (isset($_GET['retweet'])) {
   $twitter->Tweet('retweet', array('id' => $_GET['retweet']));
 } else if (isset($_GET['fav'])) {
   $twitter->Tweet('fav', array('id' => $_GET['fav']));
@@ -31,13 +23,8 @@ if (isset($_POST['tweet'])) {
 }
 $status = $twitter->Status();
 if ($status->http_code != 200) {
-  if ($statis->http_code == 403) {
-    $url = './?message=同じ内容のツイートはできません＞＜；';
-  } else {
-    $url = './?message=エラーが発生しました。ツイート出来なかったかも知れないです＞＜； error code:' . $status->http_code;
-  }
+  echo 'error:' . $status->http_code;
 } else {
-  $url = './';
+  echo 'OK';
 }
-header("Location: $url");
 ?>

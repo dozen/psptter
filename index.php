@@ -1,6 +1,10 @@
 <?php
 require 'class.php';
 $stopwatch = new Timer();
+
+if (isset($_GET['message'])) {
+  echo $_GET['message'];
+}
 //認証
 if (isset($_GET['redirect'])) {
   Authering::Redirect();
@@ -32,8 +36,7 @@ if ($_GET['status_id']) {
 if (isset($_GET['debug'])) {
   header('content-type:text/plain');
   print_r($_GET);
-  echo "\n";
-  print_r($twitter->status);
+  print_r($status);
 }
 ?>
 <!DOCTYPE html>
@@ -43,16 +46,24 @@ if (isset($_GET['debug'])) {
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link href="<?php echo Config::ROOT_ADDRESS ?>style.css" rel="stylesheet" type="text/css">
     <script src="<?php echo Config::ROOT_ADDRESS ?>js.js" type="text/javascript"></script>
+    <script src="<?php echo Config::ROOT_ADDRESS ?>lojax.js" type="text/javascript"></script>
   </head>
   <body>
     <div id="header">
       <div>
-        <a href="<?php echo Config::ROOT_ADDRESS ?>">ホーム</a> <a href="<?php echo Config::ROOT_ADDRESS ?>mentions/">返信</a> <a href="<?php echo Config::ROOT_ADDRESS ?>retweets_of_me/">RTされた</a> <a href="<?php echo Config::ROOT_ADDRESS ?>retweeted_by_me/">RTした</a> <a href="<?php echo Config::ROOT_ADDRESS ?>retweeted_to_me/">みんなのRT</a> <a href="<?php echo Config::ROOT_ADDRESS ?>favorites/">ふぁぼ</a> <a href="<?php echo Config::ROOT_ADDRESS ?>search/">検索</a> <a href="<?php echo Config::ROOT_ADDRESS ?>setting/">設定</a>
+        <a href="<?php echo Config::ROOT_ADDRESS ?>">ホーム</a>
+        <a href="<?php echo Config::ROOT_ADDRESS ?>mentions/">返信</a>
+        <a href="<?php echo Config::ROOT_ADDRESS ?>retweets_of_me/">RTされた</a>
+        <a href="<?php echo Config::ROOT_ADDRESS ?>retweeted_by_me/">RTした</a>
+        <a href="<?php echo Config::ROOT_ADDRESS ?>retweeted_to_me/">みんなのRT</a>
+        <a href="<?php echo Config::ROOT_ADDRESS ?>favorites/">ふぁぼ</a>
+        <a href="<?php echo Config::ROOT_ADDRESS ?>search/">検索</a>
+        <a href="<?php echo Config::ROOT_ADDRESS ?>setting/">設定</a>
       </div>
       <form name="post" method="post" action="<?php echo Config::ROOT_ADDRESS ?>tweet.php">
-        <textarea rows="2" cols="40" name="tweet"></textarea>
         <input type="hidden" name="id">
-        <input type="submit" value="ツイート"> <span id="log">0文字</span>
+        <textarea name="tweet"></textarea>
+        <input type="submit" class="button" value="ツイート"><a href="" onclick="checkCount();return false">チェック</a>: <span id="log">0文字</span>
       </form>
     </div>
     <?php foreach ($status as $line) {
@@ -63,7 +74,7 @@ if (isset($_GET['debug'])) {
         </div>
         <div class="text">
           <a href="<?php echo Config::ROOT_ADDRESS . $line->user->screen_name ?>/"><?php echo $line->user->screen_name ?></a> <span class="small"><?php echo $line->user->name ?>　<?php echo $line->source ?>から</span><br>
-          <?php echo nl2br(Twitter::StatusProcessing($line->text)) ?>
+          <?php echo Twitter::StatusProcessing($line->text) ?>
         </div>
         <div class="buttonbar">
           <span class="small"><?php echo Twitter::RetweetStatus($line->retweet_count, $line->retweeted_user) ?><?php echo $twitter->time($line->created_at) ?></span>

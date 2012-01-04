@@ -47,10 +47,10 @@ class Authering {
   }
 
   public static function Logout() {
-    setcookie('oauth_token', '', time() - 60, '/');
-    setcookie('oauth_token_secret', '', time() - 60, '/');
-    setcookie('user_id', '', time() - 60, '/');
-    setcookie('screen_name', '', time() - 60, '/');
+    setcookie('oauth_token', '', time() - 42000, '/');
+    setcookie('oauth_token_secret', '', time() - 42000, '/');
+    setcookie('user_id', '', time() - 42000, '/');
+    setcookie('screen_name', '', time() - 42000, '/');
     session_destroy();
     header('Location: ./');
   }
@@ -63,6 +63,7 @@ class Twitter {
   private $api;
   public $status;
   public $cache;
+  public $profile;
 
   public function __construct() {
     if ($_SESSION['access_token']) {
@@ -74,6 +75,10 @@ class Twitter {
         setcookie('screen_name', $this->access_token['screen_name'], time() + 60 * 60 * 24 * 30, '/');
       }
     } else if ($_COOKIE['oauth_token'] && $_COOKIE['oauth_token_secret'] && $_COOKIE['user_id'] && $_COOKIE['screen_name']) {
+      setcookie('oauth_token', $this->access_token['oauth_token'], time() + 60 * 60 * 24 * 30, '/');
+      setcookie('oauth_token_secret', $this->access_token['oauth_token_secret'], time() + 60 * 60 * 24 * 30, '/');
+      setcookie('user_id', $this->access_token['user_id'], time() + 60 * 60 * 24 * 30, '/');
+      setcookie('screen_name', $this->access_token['screen_name'], time() + 60 * 60 * 24 * 30, '/');
       $this->access_token['oauth_token'] = $_COOKIE['oauth_token'];
       $this->access_token['oauth_token_secret'] = $_COOKIE['oauth_token_secret'];
       $this->access_token['user_id'] = $_COOKIE['user_id'];
@@ -82,6 +87,8 @@ class Twitter {
     }
     if ($this->access_token) {
       $this->api = new TwitterOAuth(Config::CONSUMER_KEY, Config::CONSUMER_SECRET, $this->access_token['oauth_token'], $this->access_token['oauth_token_secret']);
+      $this->m = new Memcache();
+      $this->m->pconnect('localhost', 11211); //Memcached接続
     } else {
       throw new Exception('Please Login');
     }
@@ -107,10 +114,10 @@ class Twitter {
       $this->api->OAuthRequest("https://twitter.com/favorites/create/{$content['id']}.json", "POST", "");
     } else if ($type == 'follow') {
 //フォロー
-      $this->api->OAuthRequest("https://twitter.com/friendships/create/{$content['user']}.json", "POST", "");
+      $this->api->OAuthRequest("https://twitter.com/friendships/create/{$content['user_id']}.json", "POST", "");
     } else if ($type == 'remove') {
 //リムる
-      $this->api->OAuthRequest("https://twitter.com/friendships/destroy/{$content['user']}.json", "POST", "");
+      $this->api->OAuthRequest("https://twitter.com/friendships/destroy/{$content['user_id']}.json", "POST", "");
     } else if ($type == 'destroy') {
 //ツイートの削除
       $this->api->post('statuses/destroy', array('id' => $content['id']));
@@ -124,7 +131,7 @@ class Twitter {
   }
 
   public function GetStatus($type, $option) {
-    $option['include_entities'] = 'true';
+    unset($option['tm']);
     if (!$option['page']) {
       $option['page'] = 1;
     }
@@ -133,6 +140,7 @@ class Twitter {
     } else {
       $option['count'] = $_COOKIE['count'];
     }
+    $this->type = $type;
     if ($type == 'mentions') {
       $type = 'statuses/mentions';
     } else if ($type == 'retweets_of_me') {
@@ -143,30 +151,34 @@ class Twitter {
       $type = 'statuses/retweeted_to_me';
     } else if ($type == 'favorites') {
       
-    } else if ($type == 'user_timeline') {
-      $type = 'statuses/user_timeline';
     } else if ($type == 'friends') {
+      if (!$option['cursor']) {
+        $option['cursor'] = -1;
+      }
       $type = 'statuses/friends';
     } else if ($type == 'followers') {
+      if (!$option['cursor']) {
+        $option['cursor'] = -1;
+      }
       $type = 'statuses/followers';
     } else if ($type == 'direct_messages') {
 //そのうち実装
     } else if ($option['screen_name']) {
+      $this->type = 'user_timeline';
+      $this->page = $option['page'];
       $type = 'statuses/user_timeline';
     } else if ($type == '') {
       $type = 'statuses/home_timeline';
     }
     $this->status = $this->api->get($type, $option);
 //TLが戻るやつの対処法。
-    if ($option['page'] == 1 && $type != 'statuses/user_timeline') {
-      $m = new Memcache();
-      $m->pconnect('localhost', 11211);
-      $this->cache = $m->get($this->access_token['screen_name'] . ':' . $type);
+    if ($option['page'] == 1 && $type != 'statuses/user_timeline' && $type != 'statuses/friends' && $type != 'statuses/followers') {
+      $this->cache = $this->m->get($this->access_token['screen_name'] . ':' . $type);
       if (strtotime($this->cache[0]->created_at) >= strtotime($this->status[0]->created_at)) {
-        $m->set($this->access_token['screen_name'] . ':' . $type, $this->cache, false, Config::CACHE_RIMIT);
+        $this->m->set($this->access_token['screen_name'] . ':' . $type, $this->cache, false, Config::CACHE_RIMIT);
         return $this->cache;
       } else {
-        $m->set($this->access_token['screen_name'] . ':' . $type, $this->status, false, Config::CACHE_RIMIT);
+        $this->m->set($this->access_token['screen_name'] . ':' . $type, $this->status, false, Config::CACHE_RIMIT);
         return $this->status;
       }
     } else {
@@ -189,7 +201,11 @@ class Twitter {
 
   public function GetTalk($status_id) {
     while ($status_id) {
-      $this->response = $this->api->get('statuses/show', array('id' => $status_id));
+      $this->response = $this->m->get('status_id:' . $status_id);
+      if (!$this->response) {
+        $this->response = $this->api->get('statuses/show', array('id' => $status_id));
+        $this->m->set('status_id:' . $status_id, $this->response, false, Config::CACHE_RIMIT);
+      }
       $this->status[] = $this->response;
       if ($this->response->in_reply_to_status_id) {
         $status_id = $this->response->in_reply_to_status_id;
@@ -211,7 +227,7 @@ class Twitter {
 
   public function ToolBar($screen_name, $favorited, $id, $text, $status_id, $in_reply_to_status_id) {
     $text = str_replace("\n", '\n', $text);
-    $reply = '<a href="" onclick="add_text(\'@' . $screen_name . ' \',\'' . $id . '\');return false">返信</a> | ';
+    $reply = ' | <a href="" onclick="add_text(\'@' . $screen_name . ' \',\'' . $id . '\');return false">返信</a>';
     if ($screen_name == $this->access_token['screen_name']) {
 //ツイートの削除ボタン、RT、非公式RTを実装
       $destroy = ' | <a href="' . Config::ROOT_ADDRESS . 'tweet.php?destroy=' . $id . '">消</a>';
@@ -232,14 +248,14 @@ class Twitter {
     } else {
       $mention = null;
     }
-    return $mention . $reply . $rt . $fav . $destroy;
+    return $mention . $rt . $fav . $destroy . $reply;
   }
 
   public static function Retweet($line) {
     if ($line->retweeted_status) {
-      $rteder = $line->user->screen_name;
+      $retweeted_user = $line->user->screen_name;
       $line = $line->retweeted_status;
-      $line->retweeted_user = $rteder;
+      $line->retweeted_user = $retweeted_user;
     } else {
       $retweeted_user = null;
     }
@@ -250,7 +266,7 @@ class Twitter {
     $status = preg_replace("/[hftps]{0,5}:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]{1,}/u", "<a target=\"_blank\" href=\"$0\">$0</a>", $status);
     $status = preg_replace("/[#＃]([a-zA-Z0-9-_一-龠あ-んア-ンーヽヾヴｦ-ﾟ々]{1,})/u", "<a href='" . Config::ROOT_ADDRESS . "search/?s=%23$1'>#$1</a>", $status);
     $status = preg_replace("/@([a-zA-Z0-9-_]{1,})/", "<a href='" . Config::ROOT_ADDRESS . "$1/'>@$1</a>", $status);
-    return $status;
+    return nl2br($status);
   }
 
   public function Time($time) {
@@ -279,30 +295,40 @@ class Twitter {
     return $retweetstatus;
   }
 
-  public function UserProfile() {
-    if ($this->type == 'user_timeline') {
-      $this->status[0]->user;
+  public function UserProfile($screen_name) {
+    if ($this->type == 'user_timeline' && $this->page == 1) {
+      $this->profile = $this->status[0]->user;
+      $this->m->set('profile:' . $this->profile->screen_name, $this->profile, false, Config::CACHE_RIMIT);
+    } else {
+      $this->profile = $this->m->get('profile:' . $screen_name);
     }
   }
 
-}
+  public function Status() {
+    return $this->api;
+  }
+  public function Follow($user_id, $following) {
+    if (isset($this->i)) {
+      $this->i++;
+    } else {
+      $this->i = 0;
+    }
+    /*
+      if ($following) {
+      $results = '<a href="' . Config::ROOT_ADDRESS . 'tweet.php?tm=remove&user_id=' . $user_id . '">リムーブ</a>';
+      } else {
+      $results = '<a href="' . Config::ROOT_ADDRESS . 'tweet.php?tm=follow&user_id=' . $user_id . '">フォロー</a>';
+      }
+     */
+    if ($following) {
+      $results = '<a href="" id="link' . $this->i . '" onclick="makeRequest(' . $user_id . ', ' . $this->i . ', \'remove\');return false">リムーブ</a><span id="' . $this->i . '">　</span>';
+    } else {
+      $results = '<a href="" id="link' . $this->i . '" onclick="makeRequest(' . $user_id . ', ' . $this->i . ', \'follow\');return false">フォロー</a><span id="' . $this->i . '">　</span>';
+    }
+    return $results;
+  }
 
-/* ホームTLの時 & リプ & RTされた
- * ツイートID id
- * 日時 created_at
- * ふぁぼったか favorited
- * 返信先 in_reply_to_status_id
- * リツイート数 retweeted
- * 名前 user->name
- * screen_name user->screen_name
- * user_id user->id
- * IMG user->profile_image_url
- * クライアント source
- * 内容 text
- */
-/* リツイートの時
- * 全部 retweeted_status->
- */
+}
 
 class Timer {
 
@@ -322,17 +348,31 @@ class Pagenation {
 
   public static function Navi($page, $s) {
     if ($s) {
-      $s = '?s=' . $s;
+      $s = '?s=' . urlencode($s);
     } else {
       $s;
     }
     if (empty($page) || $page == 1) {
       return '&#60; | 1 | <a href="2' . $s . '">2</a> | <a href="3' . $s . '">3</a> | <a href="4' . $s . '">4</a> | <a href="2' . $s . '">&#62;</a>';
     } else if ($page == 2) {
-      return '<a href="1">&#60;</a> | <a href="1">1</a> | 2 | <a href="3' . $s . '">3</a> | <a href="4' . $s . '">4</a> | <a href="3' . $s . '">&#62;</a>';
+      return '<a href="1' . $s . '">&#60;</a> | <a href="1' . $s . '">1</a> | 2 | <a href="3' . $s . '">3</a> | <a href="4' . $s . '">4</a> | <a href="3' . $s . '">&#62;</a>';
     } else {
       return '<a href="' . ($page - 1) . $s . '">&#60;</a> | <a href="' . ($page - 1) . $s . '">' . ($page - 2) . "</a> | <a href='" . ($page - 1) . $s . "'>" . ($page - 1) . "</a> | $page | <a href='" . ($page + 1) . $s . "'>" . ($page + 1) . "</a> | <a href='" . ($page + 2) . $s . "'>" . ($page + 2) . "</a> | <a href='" . ($page + 1) . $s . "'>&#62;</a>";
     }
+  }
+
+  public static function Cursor($next, $previous) {
+    if ($next) {
+      $next = '<a href="' . $next . '">&#62;</a>';
+    } else {
+      $next = '&#62;';
+    }
+    if ($previous) {
+      $previous = '<a href="' . $previous . '">&#60;</a>';
+    } else {
+      $previous = '&#60;';
+    }
+    return $previous . ' | ' . $next;
   }
 
 }

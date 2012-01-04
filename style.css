@@ -39,6 +39,28 @@ body{
   float:left;
 }
 
+.profile{
+  clear:both;
+  padding: 5px;
+  border:dashed;
+  border-width:1px;
+  background-color: #fff;
+  margin:3px 0px 0px;
+}
+
+textarea {
+  width: 350px;
+  height: 35px;
+}
+
+form {
+  margin: 3px 0px 0px;
+}
+
+.button {
+  position: absolute;
+}
+
 .small{
   font-size: small;
   color:#999;
@@ -52,7 +74,7 @@ a {
   color: #999;
 }
 
-img.profile{
+img.icon{
   width:48px;
   height:48px;
 }
