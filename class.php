@@ -79,10 +79,12 @@ class Twitter {
       setcookie('oauth_token_secret', $this->access_token['oauth_token_secret'], time() + 60 * 60 * 24 * 30, '/');
       setcookie('user_id', $this->access_token['user_id'], time() + 60 * 60 * 24 * 30, '/');
       setcookie('screen_name', $this->access_token['screen_name'], time() + 60 * 60 * 24 * 30, '/');
-      $this->access_token['oauth_token'] = $_COOKIE['oauth_token'];
-      $this->access_token['oauth_token_secret'] = $_COOKIE['oauth_token_secret'];
-      $this->access_token['user_id'] = $_COOKIE['user_id'];
-      $this->access_token['screen_name'] = $_COOKIE['screen_name'];
+      $this->access_token = array(
+          'oauth_token' => $_COOKIE['oauth_token'],
+          'oauth_token_secret' => $_COOKIE['oauth_token_secret'],
+          'user_id' => $_COOKIE['user_id'],
+          'screen_name' => $_COOKIE['screen_name']
+          );
       $_SESSION['access_token'] = $this->access_token;
     }
     if ($this->access_token) {
@@ -307,6 +309,7 @@ class Twitter {
   public function Status() {
     return $this->api;
   }
+
   public function Follow($user_id, $following) {
     if (isset($this->i)) {
       $this->i++;

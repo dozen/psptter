@@ -16,8 +16,8 @@ function checkCount(){
   return false;
 }
 
-String.prototype.replaceAll = function (org, dest){  
-  return this.split(org).join(dest);  
+String.prototype.replaceAll = function (org, dest){
+  return this.split(org).join(dest);
 }
 
 var request = null;
@@ -31,10 +31,10 @@ function makeRequest(user_id, count, tm) {
   }
   request.onreadystatechange = function() {
     if (request.responseText != 'undefined') {
-    document.getElementById(count).innerHTML=(request.responseText);
-    document.getElementById('link'+count).innerHTML=('');
+      document.getElementById(count).innerHTML=(request.responseText);
+      document.getElementById('link'+count).innerHTML=('');
     } else {
-    document.getElementById(count).innerHTML=('\u614c\u3066\u306a\u3044\u3067\uff01');      
+      document.getElementById(count).innerHTML=('\u614c\u3066\u306a\u3044\u3067\uff01');
     }
   }
   request.open('GET', 'http://npsptter.dip.jp/sendlojax.php?tm='+tm+'&user_id='+user_id, true);

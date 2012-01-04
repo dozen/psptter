@@ -19,7 +19,6 @@ if (isset($_GET['debug'])) {
   echo "\n";
   print_r($twitter->status);
 }
-$i = 0;
 ?>
 <!DOCTYPE html>
 <html>

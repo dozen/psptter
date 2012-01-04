@@ -5,7 +5,7 @@ if ($_POST['count']) {
   $count = $_POST['count'];
   setcookie('count', $count, time() + 60 * 60 * 24 * 30, '/');
 } else if ($_COOKIE['count']) {
-    $count = $_COOKIE['count'];
+  $count = $_COOKIE['count'];
 } else {
   $count = 10;
 }
@@ -15,12 +15,11 @@ if (isset($_POST['footer'])) {
     $footer = $_POST['footer'];
     setcookie('footer', $footer, time() + 60 * 60 * 24 * 30, '/');
   } else {
-    setcookie('footer', '', time() - 24800 , '/');
+    setcookie('footer', '', time() - 24800, '/');
   }
 } else if ($_COOKIE['footer']) {
   $footer = $_COOKIE['footer'];
 }
-
 ?>
 <!DOCTYPE html>
 <html>
@@ -50,7 +49,7 @@ if (isset($_POST['footer'])) {
         <input type="file" name="image">
         <input type="submit" value="アイコンを変更">
       </form>
-        ※時間がかかります＞＜；
+      ※時間がかかります＞＜；
     </div>
   </body>
 </html>
