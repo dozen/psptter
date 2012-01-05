@@ -30,12 +30,12 @@ function makeRequest(user_id, count, sendtype) {
     }
   }
   request.onreadystatechange = function() {
-    if (request.responseText != 'undefined') {
-      document.getElementById(count).innerHTML=(request.responseText);
-      document.getElementById('link'+count).innerHTML=('');
+    if (request.responseText == 'undefined') {
+      message = '\u614c\u3066\u306a\u3044\u3067\uff01';
     } else {
-      document.getElementById(count).innerHTML=('\u614c\u3066\u306a\u3044\u3067\uff01');
+      message = request.responseText;
     }
+    document.getElementById(sendtype+count).innerHTML = (request.responseText);
   }
   request.open('POST', 'http://npsptter.dip.jp/sendlojax.php', true);
   request.setRequestHeader('Content-type', 'text/plain;charset=utf-8');
