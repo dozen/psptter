@@ -62,8 +62,8 @@ if (isset($_GET['debug'])) {
       </div>
       <form name="post" method="post" action="<?php echo Config::ROOT_ADDRESS ?>tweet.php">
         <input type="hidden" name="id">
-        <textarea name="tweet"></textarea>
-        <input type="submit" class="button" onclick="strCount()" value="ツイート"> <span id="strcount">　</span>
+        <textarea name="tweet" onChange="strCount()"></textarea>
+        <input type="submit" class="button"  value="ツイート"> <span id="strcount">　</span>
       </form>
     </div>
     <?php foreach ($status as $line) {
