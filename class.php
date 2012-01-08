@@ -311,11 +311,7 @@ class Twitter {
   }
 
   public function Follow($user_id, $following) {
-    if (isset($this->i)) {
-      $this->i++;
-    } else {
-      $this->i = 0;
-    }
+    $this->i++;
     /*
       if ($following) {
       $results = '<a href="' . Config::ROOT_ADDRESS . 'tweet.php?tm=remove&user_id=' . $user_id . '">リムーブ</a>';
