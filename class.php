@@ -4,8 +4,6 @@ require 'twitteroauth/twitteroauth.php';
 require 'config.php';
 session_start();
 
-
-
 class Authering {
 
   public static function Redirect() {
