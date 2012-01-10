@@ -196,10 +196,10 @@ class Twitter {
 
   public function GetTalk($status_id) {
     while ($status_id) {
-      $this->response = $this->m->get('status_id:' . $status_id);
+      $this->response = $this->m->get($_COOKIE['screen_name'] . ':status_id:' . $status_id);
       if (!$this->response) {
         $this->response = $this->api->get('statuses/show', array('id' => $status_id));
-        $this->m->set('status_id:' . $status_id, $this->response, false, Config::CACHE_RIMIT);
+        $this->m->set($_COOKIE['screen_name'] . ':status_id:' . $status_id, $this->response, false, Config::CACHE_RIMIT);
       }
       $this->status[] = $this->response;
       if ($this->response->in_reply_to_status_id) {
