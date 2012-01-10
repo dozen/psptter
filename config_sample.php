@@ -5,5 +5,6 @@ class Config {
   const OAUTH_CALLBACK = 'http://npsptter.dip.jp/?callback';
   const ROOT_ADDRESS = 'http://npsptter.dip.jp/';
   const CACHE_RIMIT = '600';
+  const HASHSTR = 'poochin';
 }
 ?>

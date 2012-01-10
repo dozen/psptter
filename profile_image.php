@@ -14,8 +14,6 @@ if ($_FILES['image']) {
   /**
    * custom space of Request
    */
-//$url = 'http://api.twitter.com/1/statuses/user_timeline.xml';
-// $url = 'http://api.twitter.com/1/statuses/update.xml';
   $url = 'http://api.twitter.com/1/account/update_profile_image.json';
   $method = 'POST';
   $post = array();
@@ -43,7 +41,7 @@ if ($_FILES['image']) {
       'oauth_consumer_key' => $consumer_key,
       'oauth_signature_method' => 'HMAC-SHA1',
       'oauth_timestamp' => time(),
-      'oauth_nonce' => md5('poochin' . microtime() . mt_rand()),
+      'oauth_nonce' => md5(Config::HASHSTR . microtime() . mt_rand()),
       'oauth_version' => '1.0a',
       'oauth_token' => $oauth_token,
   );
