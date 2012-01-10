@@ -1,7 +1,7 @@
 <?php
 require 'class.php';
 
-if (is_int($_POST['count'])) {
+if (is_numeric($_POST['count'])) {
   $count = $_POST['count'];
   setcookie('count', $count, time() + 60 * 60 * 24 * 30, '/');
 } else if ($_COOKIE['count']) {
