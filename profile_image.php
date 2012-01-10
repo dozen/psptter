@@ -5,8 +5,9 @@
  * License: MIT or BSD
  * ------------------------------------------------------- */
 if ($_FILES['image']) {
-  $consumer_key = 'OpniMtplTig4URUFZFzHLQ';
-  $consumer_secret = 'c471g7F3GWOnFZLrftYfYR0jkSvFL4Fi52XzeJ4zRc';
+  require 'config.php';
+  $consumer_key = Config::CONSUMER_KEY;
+  $consumer_secret = Config::CONSUMER_SECRET;
   $oauth_token = $_COOKIE['oauth_token'];
   $oauth_token_secret = $_COOKIE['oauth_token_secret'];
 
