@@ -1,7 +1,7 @@
 <?php
 require 'class.php';
 
-if ($_POST['count']) {
+if (is_numeric($_POST['count'])) {
   $count = $_POST['count'];
   setcookie('count', $count, time() + 60 * 60 * 24 * 30, '/');
 } else if ($_COOKIE['count']) {
@@ -40,7 +40,7 @@ if (isset($_POST['footer'])) {
     <div class="normal">
       <form method="post" action="./">
         1ページに表示するツイート(最大200):<input type="text" size="3" name="count" value="<?php echo $count ?>"><br>
-        フッター <input type="text" size="20" name="footer" value="<?php echo $footer ?>"><br>
+        フッター <input type="text" size="20" name="footer" value="<?php echo htmlspecialchars($footer) ?>"><br>
         <input type="submit" value="設定終了">
       </form>
     </div>

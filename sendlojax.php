@@ -17,14 +17,17 @@ if (isset($_POST['retweet'])) {
 } else if (isset($_POST['destroy'])) {
   $twitter->Tweet('destroy', array('id' => $_POST['destroy']));
 } else if (isset($_POST['follow'])) {
-  $twitter->Tweet('follow', array('user_id' => $_POST['user_id']));
+  $twitter->Tweet('follow', array('user_id' => $_POST['follow']));
 } else if (isset($_POST['remove'])) {
-  $twitter->Tweet('remove', array('user_id' => $_POST['user_id']));
+  $twitter->Tweet('remove', array('user_id' => $_POST['remove']));
+} else {
+  echo 'error :request empty';
+  end;
 }
 $status = $twitter->Status();
-if ($status->http_code != 200) {
-  echo 'error:' . $status->http_code;
-} else {
+if ($status->http_code == 200) {
   echo 'OK';
+} else {
+  echo 'error:' . $status->http_code;
 }
 ?>

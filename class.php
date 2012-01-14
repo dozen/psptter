@@ -1,15 +1,8 @@
 <?php
 
 require 'twitteroauth/twitteroauth.php';
+require 'config.php';
 session_start();
-
-class Config {
-  const CONSUMER_KEY = 'OpniMtplTig4URUFZFzHLQ';
-  const CONSUMER_SECRET = 'c471g7F3GWOnFZLrftYfYR0jkSvFL4Fi52XzeJ4zRc';
-  const OAUTH_CALLBACK = 'http://npsptter.dip.jp/?callback';
-  const ROOT_ADDRESS = 'http://npsptter.dip.jp/';
-  const CACHE_RIMIT = '600';
-}
 
 class Authering {
 
@@ -203,10 +196,10 @@ class Twitter {
 
   public function GetTalk($status_id) {
     while ($status_id) {
-      $this->response = $this->m->get('status_id:' . $status_id);
+      $this->response = $this->m->get($_COOKIE['screen_name'] . ':status_id:' . $status_id);
       if (!$this->response) {
         $this->response = $this->api->get('statuses/show', array('id' => $status_id));
-        $this->m->set('status_id:' . $status_id, $this->response, false, Config::CACHE_RIMIT);
+        $this->m->set($_COOKIE['screen_name'] . ':status_id:' . $status_id, $this->response, false, Config::CACHE_RIMIT);
       }
       $this->status[] = $this->response;
       if ($this->response->in_reply_to_status_id) {
@@ -312,11 +305,7 @@ class Twitter {
   }
 
   public function Follow($user_id, $following) {
-    if (isset($this->i)) {
-      $this->i++;
-    } else {
-      $this->i = 0;
-    }
+    $this->i++;
     /*
       if ($following) {
       $results = '<a href="' . Config::ROOT_ADDRESS . 'tweet.php?tm=remove&user_id=' . $user_id . '">リムーブ</a>';
