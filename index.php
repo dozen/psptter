@@ -35,6 +35,7 @@ if ($_GET['status_id']) {
 
 if (isset($_GET['debug'])) {
   header('content-type:text/plain');
+  echo (__FILE__);
   print_r($_GET);
   print_r($status);
 }
@@ -78,7 +79,7 @@ if (isset($_GET['debug'])) {
         </div>
         <div class="buttonbar">
           <span class="small"><?php echo Twitter::RetweetStatus($line->retweet_count, $line->retweeted_user) ?><?php echo $twitter->time($line->created_at) ?></span>
-          <?php echo $twitter->ToolBar($line->user->screen_name, $line->favorited, $line->id, $line->text, $line->id, $line->in_reply_to_status_id) ?>
+          <?php echo $twitter->ToolBar($line->user->screen_name, $line->favorited, $line->id, $line->text, $line->in_reply_to_status_id) ?>
         </div>
       </div>
     <?php } ?>

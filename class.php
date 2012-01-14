@@ -220,23 +220,23 @@ class Twitter {
     }
   }
 
-  public function ToolBar($screen_name, $favorited, $id, $text, $status_id, $in_reply_to_status_id) {
+  public function ToolBar($screen_name, $favorited, $status_id, $text, $in_reply_to_status_id) {
     $this->i++;
     $text = str_replace("\n", '\n', $text);
-    $reply = ' | <a href="" onclick="add_text(\'@' . $screen_name . ' \',\'' . $id . '\');return false">返信</a>';
+    $reply = ' | <a href="" onclick="add_text(\'@' . $screen_name . ' \',\'' . $status_id . '\');return false">返信</a>';
     if ($screen_name == $this->access_token['screen_name']) {
 //ツイートの削除ボタン、RT、非公式RTを実装
-      $destroy = ' | <a href="" id="delete' . $this->i . '" click="makeRequest(\'' . $status_id . ', ' . $this->i . ', ' . 'delete\');return false">消</a>';
+      $destroy = ' | <a href="" id="destroy' . $this->i . '" onclick="makeRequest(' . $status_id . ', ' . $this->i . ', \'destroy\');return false">消</a>';
       $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | ';
     } else {
       $destroy = null;
-      $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | <a href="" id="retweet' . $this->i . '" click="makeRequest(\'' . $status_id . ', ' . $this->i . ', ' . '\'retweet\');return false">RT</a> | ';
+      $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | <a href="" id="retweet' . $this->i . '" onclick="makeRequest(\'' . $status_id . '\', \'' . $this->i . '\', \'retweet\');return false">RT</a> | ';
     }
 //ふぁぼ
     if ($favorited) {
-      $fav = '<a href="" id="fav_dest' . $this->i . '" onclick="makeRequest(' . $id . ', ' . $this->i . ', \'fav_dest\');return false">★</a>';
+      $fav = '<a href="" id="fav_dest' . $this->i . '" onclick="makeRequest(\'' . $status_id . '\', ' . $this->i . ', \'fav_dest\');return false">★</a>';
     } else {
-      $fav = '<a href="" id="fav' . $this->i . '" onclick="makeRequest(' . $id . ', ' . $this->i . ', \'fav\');return false">☆</a>';
+      $fav = '<a href="" id="fav' . $this->i . '" onclick="makeRequest(\'' . $status_id . '\', \'' . $this->i . '\', \'fav\');return false">☆</a>';
     }
 //返信先
     if ($in_reply_to_status_id) {

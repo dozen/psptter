@@ -20,7 +20,7 @@ String.prototype.replaceAll = function (org, dest){
 }
 
 var request = null;
-function makeRequest(user_id, count, sendtype) {
+function makeRequest(status_id, count, sendtype) {
   if(typeof window.XMLHttpRequest != 'undefined') {
     try {
       request = new XMLHttpRequest();
@@ -38,5 +38,5 @@ function makeRequest(user_id, count, sendtype) {
   }
   request.open('POST', 'http://npsptter.dip.jp/sendlojax.php', true);
   request.setRequestHeader('Content-type', 'text/plain;charset=utf-8');
-  request.send(sendtype + '=' + user_id);
+  request.send(sendtype + '=' + status_id);
 }
