@@ -26,12 +26,19 @@ if ($_GET['screen_name']) {
   <body>
     <div id="header">
       <div>
-        <a href="<?php echo Config::ROOT_ADDRESS ?>">ホーム</a> <a href="<?php echo Config::ROOT_ADDRESS ?>mentions/">返信</a> <a href="<?php echo Config::ROOT_ADDRESS ?>retweets_of_me/">RTされた</a> <a href="<?php echo Config::ROOT_ADDRESS ?>retweeted_by_me/">RTした</a> <a href="<?php echo Config::ROOT_ADDRESS ?>retweeted_to_me/">みんなのRT</a> <a href="<?php echo Config::ROOT_ADDRESS ?>favorites/">ふぁぼ</a> <a href="<?php echo Config::ROOT_ADDRESS ?>search/">検索</a> <a href="<?php echo Config::ROOT_ADDRESS ?>setting/">設定</a>
+        <a href="<?php echo Config::ROOT_ADDRESS ?>">ホーム</a>
+        <a href="<?php echo Config::ROOT_ADDRESS ?>mentions/">返信</a>
+        <a href="<?php echo Config::ROOT_ADDRESS ?>retweets_of_me/">RTされた</a>
+        <a href="<?php echo Config::ROOT_ADDRESS ?>retweeted_by_me/">RTした</a>
+        <a href="<?php echo Config::ROOT_ADDRESS ?>retweeted_to_me/">みんなのRT</a>
+        <a href="<?php echo Config::ROOT_ADDRESS ?>favorites/">ふぁぼ</a>
+        <a href="<?php echo Config::ROOT_ADDRESS ?>search/">検索</a>
+        <a href="<?php echo Config::ROOT_ADDRESS ?>setting/">設定</a>
       </div>
       <form name="post" method="post" action="<?php echo Config::ROOT_ADDRESS ?>tweet.php">
-        <textarea rows="2" cols="40" name="tweet"></textarea>
         <input type="hidden" name="id">
-        <input type="submit" class="button" value="ツイート"> <a href="" onclick="checkCount();return false">チェック</a>: <span id="log">0文字</span>
+        <textarea name="tweet" onChange="strCount()"></textarea>
+        <input type="submit" class="button"  value="ツイート"> <span id="strcount">　</span>
       </form>
       <div class="profile">
         <div class="icon"><img src="<?php echo $twitter->profile->profile_image_url ?>" class="icon"></div>
