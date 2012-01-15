@@ -293,9 +293,9 @@ class Twitter {
   public function UserProfile($screen_name) {
     if ($this->type == 'user_timeline' && $this->page == 1) {
       $this->profile = $this->status[0]->user;
-      $this->m->set('profile:' . $this->profile->screen_name, $this->profile, false, Config::CACHE_RIMIT);
+      $this->m->set($this->access_token['screen_name'] . ':profile:' . $this->profile->screen_name, $this->profile, false, Config::CACHE_RIMIT);
     } else {
-      $this->profile = $this->m->get('profile:' . $screen_name);
+      $this->profile = $this->m->get($this->access_token['screen_name'] . ':profile:' . $screen_name);
     }
   }
 
