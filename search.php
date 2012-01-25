@@ -25,16 +25,7 @@ if ($_GET['s']) {
   </head>
   <body>
     <div id="header">
-      <div>
-        <a href="<?php echo Config::ROOT_ADDRESS ?>">ホーム</a>
-        <a href="<?php echo Config::ROOT_ADDRESS ?>mentions/">返信</a>
-        <a href="<?php echo Config::ROOT_ADDRESS ?>retweets_of_me/">RTされた</a>
-        <a href="<?php echo Config::ROOT_ADDRESS ?>retweeted_by_me/">RTした</a>
-        <a href="<?php echo Config::ROOT_ADDRESS ?>retweeted_to_me/">みんなのRT</a>
-        <a href="<?php echo Config::ROOT_ADDRESS ?>favorites/">ふぁぼ</a>
-        <a href="<?php echo Config::ROOT_ADDRESS ?>search/">検索</a>
-        <a href="<?php echo Config::ROOT_ADDRESS ?>setting/">設定</a>
-      </div>
+      <?php echo Page::MenuBar() ?>
       <form method="get" action="<?php echo Config::ROOT_ADDRESS ?>search/">
         <textarea name="s"></textarea>
         <input type="submit" class="button" value="検索">

@@ -25,17 +25,8 @@ if ($_GET['screen_name']) {
   </head>
   <body>
     <div id="header">
-      <div>
-        <a href="<?php echo Config::ROOT_ADDRESS ?>">ホーム</a>
-        <a href="<?php echo Config::ROOT_ADDRESS ?>mentions/">返信</a>
-        <a href="<?php echo Config::ROOT_ADDRESS ?>retweets_of_me/">RTされた</a>
-        <a href="<?php echo Config::ROOT_ADDRESS ?>retweeted_by_me/">RTした</a>
-        <a href="<?php echo Config::ROOT_ADDRESS ?>retweeted_to_me/">みんなのRT</a>
-        <a href="<?php echo Config::ROOT_ADDRESS ?>favorites/">ふぁぼ</a>
-        <a href="<?php echo Config::ROOT_ADDRESS ?>search/">検索</a>
-        <a href="<?php echo Config::ROOT_ADDRESS ?>setting/">設定</a>
-      </div>
-      <form name="post" method="post" action="<?php echo Config::ROOT_ADDRESS ?>tweet.php">
+      <?php echo Page::MenuBar() ?>
+      <form name="post" method="post" action="<?php echo Config::ROOT_ADDRESS ?>send.php">
         <input type="hidden" name="id">
         <textarea name="tweet" onChange="strCount()"></textarea>
         <input type="submit" class="button"  value="ツイート"> <span id="strcount">　</span>

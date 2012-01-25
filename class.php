@@ -53,7 +53,7 @@ class Authering {
 class Twitter {
 
   public $access_token;
-  private $api;
+  public $api;
   public $status;
   public $cache;
   public $profile;
@@ -77,7 +77,7 @@ class Twitter {
           'oauth_token_secret' => $_COOKIE['oauth_token_secret'],
           'user_id' => $_COOKIE['user_id'],
           'screen_name' => $_COOKIE['screen_name']
-          );
+      );
       $_SESSION['access_token'] = $this->access_token;
     }
     if ($this->access_token) {
@@ -118,7 +118,7 @@ class Twitter {
       $this->api->post('statuses/destroy', array('id' => $content['id']));
     } else if ($type == 'dm') {
 //DMの送信
-      $this->api->post('direct_messages/new', array('text' => $contens['tweet'], 'user' => $content['user']));
+      $this->api->post('direct_messages/new', array('text' => $content['tweet'], 'user' => $content['user']));
     } else if ($type == 'dm_destroy') {
 //DMの削除
 //そのうち実装する
@@ -162,6 +162,8 @@ class Twitter {
       $this->type = 'user_timeline';
       $this->page = $option['page'];
       $type = 'statuses/user_timeline';
+    } else if ($type == 'trends') {
+      $type = 'trends/23424856';
     } else if ($type == '') {
       $type = 'statuses/home_timeline';
     }
@@ -225,17 +227,17 @@ class Twitter {
     $reply = ' | <a href="" onclick="add_text(\'@' . $screen_name . ' \',\'' . $id . '\');return false">返信</a>';
     if ($screen_name == $this->access_token['screen_name']) {
 //ツイートの削除ボタン、RT、非公式RTを実装
-      $destroy = ' | <a href="' . Config::ROOT_ADDRESS . 'tweet.php?destroy=' . $id . '">消</a>';
+      $destroy = ' | <a href="' . Config::ROOT_ADDRESS . 'send.php?destroy=' . $id . '">消</a>';
       $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | ';
     } else {
       $destroy = null;
-      $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | <a href="' . Config::ROOT_ADDRESS . 'tweet.php?retweet=' . $id . '">RT</a> | ';
+      $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | <a href="' . Config::ROOT_ADDRESS . 'send.php?retweet=' . $id . '">RT</a> | ';
     }
 //ふぁぼ
     if ($favorited) {
-      $fav = '<a href="' . Config::ROOT_ADDRESS . 'tweet.php?fav_dest=' . $id . '">★</a>';
+      $fav = '<a href="' . Config::ROOT_ADDRESS . 'send.php?fav_dest=' . $id . '">★</a>';
     } else {
-      $fav = '<a href="' . Config::ROOT_ADDRESS . 'tweet.php?fav=' . $id . '">☆</a>';
+      $fav = '<a href="' . Config::ROOT_ADDRESS . 'send.php?fav=' . $id . '">☆</a>';
     }
 //返信先
     if ($in_reply_to_status_id) {
@@ -262,6 +264,10 @@ class Twitter {
     $status = preg_replace("/[#＃]([a-zA-Z0-9-_一-龠あ-んア-ンーヽヾヴｦ-ﾟ々]{1,})/u", "<a href='" . Config::ROOT_ADDRESS . "search/?s=%23$1'>#$1</a>", $status);
     $status = preg_replace("/@([a-zA-Z0-9-_]{1,})/", "<a href='" . Config::ROOT_ADDRESS . "$1/'>@$1</a>", $status);
     return nl2br($status);
+  }
+
+  public static function TrendsProcessing($status) {
+    return '<a href="' . Config::ROOT_ADDRESS . 'search/?s=' . rawurlencode($status) . '">' . $status . '</a><br>';
   }
 
   public function Time($time) {
@@ -299,17 +305,13 @@ class Twitter {
     }
   }
 
-  public function Status() {
-    return $this->api;
-  }
-
   public function Follow($user_id, $following) {
     $this->i++;
     /*
       if ($following) {
-      $results = '<a href="' . Config::ROOT_ADDRESS . 'tweet.php?tm=remove&user_id=' . $user_id . '">リムーブ</a>';
+      $results = '<a href="' . Config::ROOT_ADDRESS . 'send.php?tm=remove&user_id=' . $user_id . '">リムーブ</a>';
       } else {
-      $results = '<a href="' . Config::ROOT_ADDRESS . 'tweet.php?tm=follow&user_id=' . $user_id . '">フォロー</a>';
+      $results = '<a href="' . Config::ROOT_ADDRESS . 'send.php?tm=follow&user_id=' . $user_id . '">フォロー</a>';
       }
      */
     if ($following) {
@@ -332,6 +334,24 @@ class Timer {
 
   public function Show() {
     return microtime(true) - $this->time;
+  }
+
+}
+
+class Page {
+
+  public static function MenuBar() {
+  return '<div>
+  <a href="' . Config::ROOT_ADDRESS . '">ホーム</a>
+  <a href="' . Config::ROOT_ADDRESS . 'mentions/">返信</a>
+  <a href="' . Config::ROOT_ADDRESS . 'retweets_of_me/">RTされた</a>
+  <a href="' . Config::ROOT_ADDRESS . 'retweeted_by_me/">RTした</a>
+  <a href="' . Config::ROOT_ADDRESS . 'retweeted_to_me/">みんなのRT</a>
+  <a href="' . Config::ROOT_ADDRESS . 'favorites/">ふぁぼ</a>
+  <a href="' . Config::ROOT_ADDRESS . 'search/">検索</a>
+  <a href="' . Config::ROOT_ADDRESS . 'trends/">トレンド</a>
+  <a href="' . Config::ROOT_ADDRESS . 'setting/">設定</a>
+  </div>';
   }
 
 }
