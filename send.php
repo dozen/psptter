@@ -29,12 +29,11 @@ if (isset($_POST['tweet'])) {
 } else if ($_GET['tm'] == 'remove') {
   $twitter->Tweet('remove', array('user_id' => $_GET['user_id']));
 }
-$status = $twitter->Status();
-if ($status->http_code != 200) {
-  if ($statis->http_code == 403) {
+if ($twitter->api->http_code != 200) {
+  if ($twitter->api->http_code == 403) {
     $url = './?message=同じ内容のツイートはできません＞＜；';
   } else {
-    $url = './?message=エラーが発生しました。ツイート出来なかったかも知れないです＞＜； error code:' . $status->http_code;
+    $url = './?message=エラーが発生しました。ツイート出来なかったかも知れないです＞＜； error code:' . $twitter->api->http_code;
   }
 } else {
   $url = './';

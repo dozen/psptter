@@ -24,7 +24,7 @@ if (isset($_POST['retweet'])) {
   echo 'error :request empty';
   end;
 }
-$status = $twitter->Status();
+$status = $twitter->api;
 if ($status->http_code == 200) {
   echo 'OK';
 } else {
