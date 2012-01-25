@@ -343,7 +343,7 @@ class Pagenation {
     if ($s) {
       $s = '?s=' . urlencode($s);
     } else {
-      $s;
+      $s = null;
     }
     if (empty($page) || $page == 1) {
       return '&#60; | 1 | <a href="2' . $s . '">2</a> | <a href="3' . $s . '">3</a> | <a href="4' . $s . '">4</a> | <a href="2' . $s . '">&#62;</a>';

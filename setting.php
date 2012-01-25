@@ -41,6 +41,7 @@ if (isset($_POST['footer'])) {
       <form method="post" action="./">
         1ページに表示するツイート(最大200):<input type="text" size="3" name="count" value="<?php echo $count ?>"><br>
         フッター <input type="text" size="20" name="footer" value="<?php echo htmlspecialchars($footer) ?>"><br>
+        アイコン <br>
         <input type="submit" value="設定終了">
       </form>
     </div>
