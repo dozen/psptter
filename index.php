@@ -43,11 +43,7 @@ if (isset($_GET['debug'])) {
 <!DOCTYPE html>
 <html>
   <head>
-    <title>N-PSPったー</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <link href="<?php echo Config::ROOT_ADDRESS ?>style.css" rel="stylesheet" type="text/css">
-    <script src="<?php echo Config::ROOT_ADDRESS ?>js.js" type="text/javascript"></script>
-    <script src="<?php echo Config::ROOT_ADDRESS ?>lojax.js" type="text/javascript"></script>
+    <?php echo Page::Header() ?>
   </head>
   <body>
     <div id="header">

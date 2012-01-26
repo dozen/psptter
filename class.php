@@ -333,9 +333,9 @@ class Twitter {
     } else {
       $this->i++;
       if ($following) {
-        $results = '<a href="" id="link' . $this->i . '" onclick="makeRequest(' . $user_id . ', ' . $this->i . ', \'remove\');return false">リムーブ</a><span id="' . $this->i . '">　</span>';
+        $results = '<a href="" id="remove' . $this->i . '" onclick="makeRequest(\'' . $user_id . '\', \'' . $this->i . '\', \'remove\');return false">リムーブ</a><span id="' . $this->i . '">　</span>';
       } else {
-        $results = '<a href="" id="link' . $this->i . '" onclick="makeRequest(' . $user_id . ', ' . $this->i . ', \'follow\');return false">フォロー</a><span id="' . $this->i . '">　</span>';
+        $results = '<a href="" id="follow' . $this->i . '" onclick="makeRequest(\'' . $user_id . '\', \'' . $this->i . '\', \'follow\');return false">フォロー</a><span id="' . $this->i . '">　</span>';
       }
     }
     return $results;
@@ -359,6 +359,18 @@ class Timer {
 
 class Page {
 
+  public static function Header() {
+    $results = '<title>N-PSPったー</title>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <link href="' . Config::ROOT_ADDRESS . 'style.css" rel="stylesheet" type="text/css">
+      <script src="' . Config::ROOT_ADDRESS . 'js.js" type="text/javascript"></script>';
+    if ($_COOKIE['lojax'] == "enable") {
+      $results = $results . '
+        <script src="' . Config::ROOT_ADDRESS . 'lojax.js" type="text/javascript"></script>';
+    }
+    return $results;
+  }
+
   public static function MenuBar() {
     return '<div>
   <a href="' . Config::ROOT_ADDRESS . '">ホーム</a>
@@ -372,10 +384,6 @@ class Page {
   <a href="' . Config::ROOT_ADDRESS . 'setting/">設定</a>
   </div>';
   }
-
-}
-
-class Pagenation {
 
   public static function Navi($page, $s) {
     if ($s) {

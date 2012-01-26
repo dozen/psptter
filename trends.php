@@ -17,9 +17,7 @@ $status = $twitter->GetStatus('trends');
 <!DOCTYPE html>
 <html>
   <head>
-    <title>N-PSPったー</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <link href="<?php echo Config::ROOT_ADDRESS ?>style.css" rel="stylesheet" type="text/css">
+    <?php echo Page::Header() ?>
   </head>
   <body>
     <div id="header">
