@@ -313,22 +313,22 @@ header('Pragma: no-cache');
       window.onload = respond;
 
     </script>
-<?php
+    <?php
 //expose the transfer mechanism
-$expose = false;
+    $expose = false;
 
 //compile the form HTML -- rows and cols must be at least "1" or it doesn't work properly in Opera 6
-$attrs = ($expose ? 'rows="10" cols="30"' : 'rows="1" cols="1" disabled="disabled"');
-$type = ($expose ? 'type="text"' : 'type="hidden"');
-$html = '<form action="" id="lojax_sender"><fieldset>'
-        . '<textarea id="lojax_response" ' . $attrs . '>' . (isset($output) ? htmlentities($output) : '') . '</textarea>'
-        . '<textarea id="lojax_headers" ' . $attrs . '>' . (isset($headers) ? htmlentities($headers) : '') . '</textarea>'
-        . '<input id="lojax_status" ' . $type . ' value="' . (isset($status) ? htmlentities($status) : '') . '" />'
-        . '</fieldset></form>';
+    $attrs = ($expose ? 'rows="10" cols="30"' : 'rows="1" cols="1" disabled="disabled"');
+    $type = ($expose ? 'type="text"' : 'type="hidden"');
+    $html = '<form action="" id="lojax_sender"><fieldset>'
+            . '<textarea id="lojax_response" ' . $attrs . '>' . (isset($output) ? htmlentities($output) : '') . '</textarea>'
+            . '<textarea id="lojax_headers" ' . $attrs . '>' . (isset($headers) ? htmlentities($headers) : '') . '</textarea>'
+            . '<input id="lojax_status" ' . $type . ' value="' . (isset($status) ? htmlentities($status) : '') . '" />'
+            . '</fieldset></form>';
 
 //output the form
-echo $html;
-?>
+    echo $html;
+    ?>
 
   </body>
 </html>

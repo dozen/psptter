@@ -228,17 +228,17 @@ class Twitter {
     if ($_COOKIE['lojax'] == 'disable') {
       if ($screen_name == $this->access_token['screen_name']) {
 //ツイートの削除ボタン、RT、非公式RTを実装
-        $destroy = ' | <a href="' . Config::ROOT_ADDRESS . 'send.php?destroy=' . $id . '">消</a>';
+        $destroy = ' | <a href="' . Config::ROOT_ADDRESS . 'send.php?destroy=' . $status_id . '">消</a>';
         $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | ';
       } else {
         $destroy = null;
-        $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | <a href="' . Config::ROOT_ADDRESS . 'send.php?retweet=' . $id . '">RT</a> | ';
+        $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | <a href="' . Config::ROOT_ADDRESS . 'send.php?retweet=' . $status_id . '">RT</a> | ';
       }
 //ふぁぼ
       if ($favorited) {
-        $fav = '<a href="' . Config::ROOT_ADDRESS . 'send.php?fav_dest=' . $id . '">★</a>';
+        $fav = '<a href="' . Config::ROOT_ADDRESS . 'send.php?fav_dest=' . $status_id . '">★</a>';
       } else {
-        $fav = '<a href="' . Config::ROOT_ADDRESS . 'send.php?fav=' . $id . '">☆</a>';
+        $fav = '<a href="' . Config::ROOT_ADDRESS . 'send.php?fav=' . $status_id . '">☆</a>';
       }
     } else {
       $this->i++;

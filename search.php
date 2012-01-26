@@ -31,8 +31,10 @@ if ($_GET['s']) {
         <input type="submit" class="button" value="検索">
       </form>
     </div>
-    <?php foreach ($status as $line) {
-      $line = Twitter::Retweet($line); ?>
+    <?php
+    foreach ($status as $line) {
+      $line = Twitter::Retweet($line);
+      ?>
       <div class="normal">
         <div class="icon">
           <img class="icon" src="<?php echo $line->profile_image_url ?>">

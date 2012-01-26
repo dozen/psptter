@@ -30,9 +30,9 @@ if (isset($_POST['lojax'])) {
   $lojax = $_COOKIE['lojax'];
 }
 if ($lojax == 'enable') {
-  $lojax['enable'] = "checked";
+  $lojax_radio['enable'] = "checked";
 } else {
-  $lojax['disable'] = "checked";
+  $lojax_radio['disable'] = "checked";
 }
 ?>
 <!DOCTYPE html>
@@ -63,8 +63,8 @@ if ($lojax == 'enable') {
         </p>
         <p>
           Lojax
-          <input type="radio" name="lojax" value="enable" <?php echo $lojax['enable'] ?>> 有効
-          <input type="radio" name="lojax" value="disable" <?php echo $lojax['disable'] ?>> 無効
+          <input type="radio" name="lojax" value="enable" <?php echo $lojax_radio['enable'] ?>> 有効
+          <input type="radio" name="lojax" value="disable" <?php echo $lojax_radio['disable'] ?>> 無効
         </p>
         <input type="submit" value="設定終了">
       </form>

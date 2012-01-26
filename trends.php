@@ -32,7 +32,7 @@ $status = $twitter->GetStatus('trends');
     </div>
     <div id="footer">
       <div style="text-align:right">
-<?php echo $stopwatch->Show() . ' 秒' ?> <a href="<?php echo Config::ROOT_ADDRESS ?>?logout">logout</a>
+        <?php echo $stopwatch->Show() . ' 秒' ?> <a href="<?php echo Config::ROOT_ADDRESS ?>?logout">logout</a>
       </div>
     </div>
   </body>
