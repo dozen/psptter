@@ -58,7 +58,7 @@ if (isset($_GET['debug'])) {
       </div>
     <?php } ?>
     <div id="footer">
-      <?php echo Pagenation::Cursor($status->next_cursor, $status->previous_cursor) ?><br>
+      <?php echo Page::Cursor($status->next_cursor, $status->previous_cursor) ?><br>
       <?php echo $stopwatch->Show() . ' 秒' ?>
     </div>
   </body>

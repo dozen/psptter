@@ -223,28 +223,45 @@ class Twitter {
   }
 
   public function ToolBar($screen_name, $favorited, $status_id, $text, $in_reply_to_status_id) {
-    $this->i++;
     $text = str_replace("\n", '\n', $text);
     $reply = ' | <a href="" onclick="add_text(\'@' . $screen_name . ' \',\'' . $status_id . '\');return false">返信</a>';
-    if ($screen_name == $this->access_token['screen_name']) {
+    if ($_COOKIE['lojax'] == 'disable') {
+      if ($screen_name == $this->access_token['screen_name']) {
 //ツイートの削除ボタン、RT、非公式RTを実装
-      $destroy = ' | <a href="" id="destroy' . $this->i . '" onclick="makeRequest(' . $status_id . ', ' . $this->i . ', \'destroy\');return false">消</a>';
-      $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | ';
-    } else {
-      $destroy = null;
-      $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | <a href="" id="retweet' . $this->i . '" onclick="makeRequest(\'' . $status_id . '\', \'' . $this->i . '\', \'retweet\');return false">RT</a> | ';
-    }
+        $destroy = ' | <a href="' . Config::ROOT_ADDRESS . 'send.php?destroy=' . $id . '">消</a>';
+        $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | ';
+      } else {
+        $destroy = null;
+        $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | <a href="' . Config::ROOT_ADDRESS . 'send.php?retweet=' . $id . '">RT</a> | ';
+      }
 //ふぁぼ
-    if ($favorited) {
-      $fav = '<a href="" id="fav_dest' . $this->i . '" onclick="makeRequest(\'' . $status_id . '\', ' . $this->i . ', \'fav_dest\');return false">★</a>';
+      if ($favorited) {
+        $fav = '<a href="' . Config::ROOT_ADDRESS . 'send.php?fav_dest=' . $id . '">★</a>';
+      } else {
+        $fav = '<a href="' . Config::ROOT_ADDRESS . 'send.php?fav=' . $id . '">☆</a>';
+      }
     } else {
-      $fav = '<a href="" id="fav' . $this->i . '" onclick="makeRequest(\'' . $status_id . '\', \'' . $this->i . '\', \'fav\');return false">☆</a>';
-    }
+      $this->i++;
+      if ($screen_name == $this->access_token['screen_name']) {
+//ツイートの削除ボタン、RT、非公式RTを実装
+        $destroy = ' | <a href="" id="destroy' . $this->i . '" onclick="makeRequest(' . $status_id . ', ' . $this->i . ', \'destroy\');return false">消</a>';
+        $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | ';
+      } else {
+        $destroy = null;
+        $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | <a href="" id="retweet' . $this->i . '" onclick="makeRequest(\'' . $status_id . '\', \'' . $this->i . '\', \'retweet\');return false">RT</a> | ';
+      }
+//ふぁぼ
+      if ($favorited) {
+        $fav = '<a href="" id="fav_dest' . $this->i . '" onclick="makeRequest(\'' . $status_id . '\', ' . $this->i . ', \'fav_dest\');return false">★</a>';
+      } else {
+        $fav = '<a href="" id="fav' . $this->i . '" onclick="makeRequest(\'' . $status_id . '\', \'' . $this->i . '\', \'fav\');return false">☆</a>';
+      }
 //返信先
-    if ($in_reply_to_status_id) {
-      $mention = '<a href="' . Config::ROOT_ADDRESS . 'talk/' . $status_id . '">返信先</a> | ';
-    } else {
-      $mention = null;
+      if ($in_reply_to_status_id) {
+        $mention = '<a href="' . Config::ROOT_ADDRESS . 'talk/' . $status_id . '">返信先</a> | ';
+      } else {
+        $mention = null;
+      }
     }
     return $mention . $rt . $fav . $destroy . $reply;
   }
@@ -261,7 +278,7 @@ class Twitter {
   }
 
   public static function StatusProcessing($status) {
-    $status = preg_replace("/[hftps]{0,5}:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]{1,}/u", "<a target=\"_blank\" href=\"$0\">$0</a>", $status);
+    $status = preg_replace("/http:\/\/t\.co\/[a-zA-Z0-9]{1,}/u", "<a target=\"_blank\" href=\"$0\">$0</a>", $status);
     $status = preg_replace("/[#＃]([a-zA-Z0-9-_一-龠あ-んア-ンーヽヾヴｦ-ﾟ々]{1,})/u", "<a href='" . Config::ROOT_ADDRESS . "search/?s=%23$1'>#$1</a>", $status);
     $status = preg_replace("/@([a-zA-Z0-9-_]{1,})/", "<a href='" . Config::ROOT_ADDRESS . "$1/'>@$1</a>", $status);
     return nl2br($status);
@@ -307,18 +324,19 @@ class Twitter {
   }
 
   public function Follow($user_id, $following) {
-    $this->i++;
-    /*
+    if ($_COOKIE['lojax'] == 'disable') {
       if ($following) {
-      $results = '<a href="' . Config::ROOT_ADDRESS . 'send.php?tm=remove&user_id=' . $user_id . '">リムーブ</a>';
+        $results = '<a href="' . Config::ROOT_ADDRESS . 'send.php?remove=' . $user_id . '">リムーブ</a>';
       } else {
-      $results = '<a href="' . Config::ROOT_ADDRESS . 'send.php?tm=follow&user_id=' . $user_id . '">フォロー</a>';
+        $results = '<a href="' . Config::ROOT_ADDRESS . 'send.php?follow=' . $user_id . '">フォロー</a>';
       }
-     */
-    if ($following) {
-      $results = '<a href="" id="remove' . $this->i . '" onclick="makeRequest(' . $user_id . ', ' . $this->i . ', \'remove\');return false">リムーブ</a>';
     } else {
-      $results = '<a href="" id="follow' . $this->i . '" onclick="makeRequest(' . $user_id . ', ' . $this->i . ', \'follow\');return false">フォロー</a>';
+      $this->i++;
+      if ($following) {
+        $results = '<a href="" id="link' . $this->i . '" onclick="makeRequest(' . $user_id . ', ' . $this->i . ', \'remove\');return false">リムーブ</a><span id="' . $this->i . '">　</span>';
+      } else {
+        $results = '<a href="" id="link' . $this->i . '" onclick="makeRequest(' . $user_id . ', ' . $this->i . ', \'follow\');return false">フォロー</a><span id="' . $this->i . '">　</span>';
+      }
     }
     return $results;
   }
@@ -342,7 +360,7 @@ class Timer {
 class Page {
 
   public static function MenuBar() {
-  return '<div>
+    return '<div>
   <a href="' . Config::ROOT_ADDRESS . '">ホーム</a>
   <a href="' . Config::ROOT_ADDRESS . 'mentions/">返信</a>
   <a href="' . Config::ROOT_ADDRESS . 'retweets_of_me/">RTされた</a>
