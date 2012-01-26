@@ -20,6 +20,20 @@ if (isset($_POST['footer'])) {
 } else if ($_COOKIE['footer']) {
   $footer = $_COOKIE['footer'];
 }
+
+if (isset($_POST['lojax'])) {
+  if ($_POST['lojax'] == "disable" || $_POST['lojax'] == "enable") {
+    $lojax = $_POST['lojax'];
+    setcookie('lojax', $lojax, time() + 60 * 60 * 24 * 30, '/');
+  }
+} else if ($_COOKIE['lojax']) {
+  $lojax = $_COOKIE['lojax'];
+}
+if ($lojax == 'enable') {
+  $lojax['enable'] = "checked";
+} else {
+  $lojax['disable'] = "checked";
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -39,8 +53,19 @@ if (isset($_POST['footer'])) {
     </div>
     <div class="normal">
       <form method="post" action="./">
-        1ページに表示するツイート(最大200):<input type="text" size="3" name="count" value="<?php echo $count ?>"><br>
-        フッター <input type="text" size="20" name="footer" value="<?php echo htmlspecialchars($footer) ?>"><br>
+        <p>
+          1ページに表示するツイート(最大200)
+          <input type="text" size="3" name="count" value="<?php echo $count ?>">
+        </p>
+        <p>
+          フッター
+          <input type="text" size="20" name="footer" value="<?php echo htmlspecialchars($footer) ?>">
+        </p>
+        <p>
+          Lojax
+          <input type="radio" name="lojax" value="enable" <?php echo $lojax['enable'] ?>> 有効
+          <input type="radio" name="lojax" value="disable" <?php echo $lojax['disable'] ?>> 無効
+        </p>
         <input type="submit" value="設定終了">
       </form>
     </div>

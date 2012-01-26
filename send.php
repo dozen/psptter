@@ -25,9 +25,9 @@ if (isset($_POST['tweet'])) {
 } else if (isset($_GET['destroy'])) {
   $twitter->Tweet('destroy', array('id' => $_GET['destroy']));
 } else if ($_GET['tm'] == 'follow') {
-  $twitter->Tweet('follow', array('user_id' => $_GET['user_id']));
+  $twitter->Tweet('follow', array('user_id' => $_GET['follow']));
 } else if ($_GET['tm'] == 'remove') {
-  $twitter->Tweet('remove', array('user_id' => $_GET['user_id']));
+  $twitter->Tweet('remove', array('user_id' => $_GET['remove']));
 }
 if ($twitter->api->http_code != 200) {
   if ($twitter->api->http_code == 403) {
