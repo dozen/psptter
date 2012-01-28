@@ -62,20 +62,20 @@ if (isset($_GET['debug'])) {
         <?php echo Page::IconStyle($line->user->profile_image_url) ?>
         <div class="<?php echo Page::TextStyle() ?>">
           <a href="<?php echo Config::ROOT_ADDRESS . $line->user->screen_name ?>/"><?php echo $line->user->screen_name ?></a> <span class="small"><?php echo $line->user->name ?>　<?php echo $line->source ?>から</span><br>
-  <?php echo Twitter::StatusProcessing($line->text) ?>
+          <?php echo Twitter::StatusProcessing($line->text) ?>
         </div>
         <div class="buttonbar">
           <span class="small"><?php echo Twitter::RetweetStatus($line->retweet_count, $line->retweeted_user) ?><?php echo $twitter->time($line->created_at) ?></span>
-  <?php echo $twitter->ToolBar($line->user->screen_name, $line->favorited, $line->id, $line->text, $line->in_reply_to_status_id) ?>
+          <?php echo $twitter->ToolBar($line->user->screen_name, $line->favorited, $line->id, $line->text, $line->in_reply_to_status_id) ?>
         </div>
       </div>
-<?php } ?>
+    <?php } ?>
     <div id="footer">
       <div style="float:left">
         <?php echo Page::Navi($_GET['page'], "") ?>
       </div>
       <div style="text-align:right">
-<?php echo $stopwatch->Show() . ' 秒' ?> <a href="<?php echo Config::ROOT_ADDRESS ?>?logout">logout</a>
+        <?php echo $stopwatch->Show() . ' 秒' ?> <a href="<?php echo Config::ROOT_ADDRESS ?>?logout">logout</a>
       </div>
     </div>
   </body>

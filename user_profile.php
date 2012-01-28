@@ -1,5 +1,6 @@
 <?php
 require 'class.php';
+$stopwatch = new Timer();
 try {
   $twitter = new Twitter();
 } catch (Exception $e) {
@@ -51,8 +52,12 @@ if ($_GET['screen_name']) {
       </div>
     <?php } ?>
     <div id="footer">
-      <?php echo Page::Navi($_GET['page'], "") ?><br>
-      <?php echo $stopwatch->Show() . ' 秒' ?>
+      <div style="float:left">
+        <?php echo Page::Navi($_GET['page'], "") ?>
+      </div>
+      <div style="text-align:right">
+        <?php echo $stopwatch->Show() . ' 秒' ?> <a href="<?php echo Config::ROOT_ADDRESS ?>?logout">logout</a>
+      </div>
     </div>
   </body>
 </html>

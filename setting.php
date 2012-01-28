@@ -3,9 +3,9 @@ require 'class.php';
 
 if (is_numeric($_POST['count'])) {
   $count = $_POST['count'];
-  setcookie('count', $count, time() + 60 * 60 * 24 * 30, '/');
-} else if ($_COOKIE['count']) {
-  $count = $_COOKIE['count'];
+  Cookie::set(array('count' => $count));
+} else if (Cookie::get('count')) {
+  $count = Cookie::get('count');
 } else {
   $count = 10;
 }
@@ -13,23 +13,26 @@ if (is_numeric($_POST['count'])) {
 if (isset($_POST['footer'])) {
   $footer = $_POST['footer'];
   if ($footer) {
-    setcookie('footer', $footer, time() + 60 * 60 * 24 * 30, '/');
+    Cookie::set(array('footer' => $footer));
   } else {
-    setcookie('footer', '', time() - 24800, '/');
+    Cookie::clear('footer');
   }
-} else if ($_COOKIE['footer']) {
-  $footer = $_COOKIE['footer'];
+} else if (Cookie::get('footer')) {
+  $footer = Cookie::get('footer');
 }
 
 if (isset($_POST['lojax'])) {
   $lojax = $_POST['lojax'];
   if ($lojax == "disable" || $lojax == "enable") {
-    setcookie('lojax', $lojax, time() + 60 * 60 * 24 * 30, '/');
+    Cookie::set(array('lojax' => $lojax));
   } else {
     $lojax = 'enable';
   }
-} else if ($_COOKIE['lojax']) {
-  $lojax = $_COOKIE['lojax'];
+} else if (Cookie::get('lojax')) {
+  $lojax = Cookie::get('lojax');
+} else {
+  Cookie::set(array('lojax' => 'enable'));
+  $lojax = 'enable';
 }
 
 $lojax_radio[$lojax] = "checked";
@@ -37,12 +40,15 @@ $lojax_radio[$lojax] = "checked";
 if (isset($_POST['icon'])) {
   $icon = $_POST['icon'];
   if ($icon == "disable" || $icon == "middle" || $icon == 'small' || $icon == 'normal') {
-    setcookie('icon', $icon, time() + 60 * 60 * 24 * 30, '/');
+    Cookie::set(array('icon' => $icon));
   } else {
     $icon = 'normal';
   }
-} else if ($_COOKIE['icon']) {
-  $icon = $_COOKIE['icon'];
+} else if (Cookie::get('icon')) {
+  $icon = Cookie::get('icon');
+} else {
+  Cookie::set(array('icon' => 'normal'));
+  $icon = 'normal';
 }
 
 $icon_radio[$icon] = 'checked';

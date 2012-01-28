@@ -40,10 +40,7 @@ class Authering {
   }
 
   public static function Logout() {
-    setcookie('oauth_token', '', time() - 42000, '/');
-    setcookie('oauth_token_secret', '', time() - 42000, '/');
-    setcookie('user_id', '', time() - 42000, '/');
-    setcookie('screen_name', '', time() - 42000, '/');
+    Cookie::allclear();
     session_destroy();
     header('Location: ./');
   }
@@ -62,22 +59,11 @@ class Twitter {
     if ($_SESSION['access_token']) {
       $this->access_token = $_SESSION['access_token'];
       if (!($_COOKIE['oauth_token'] && $_COOKIE['oauth_token_secret'] && $_COOKIE['user_id'] && $_COOKIE['screen_name'])) {
-        setcookie('oauth_token', $this->access_token['oauth_token'], time() + 60 * 60 * 24 * 30, '/');
-        setcookie('oauth_token_secret', $this->access_token['oauth_token_secret'], time() + 60 * 60 * 24 * 30, '/');
-        setcookie('user_id', $this->access_token['user_id'], time() + 60 * 60 * 24 * 30, '/');
-        setcookie('screen_name', $this->access_token['screen_name'], time() + 60 * 60 * 24 * 30, '/');
+        Cookie::set($this->access_token);
       }
     } else if ($_COOKIE['oauth_token'] && $_COOKIE['oauth_token_secret'] && $_COOKIE['user_id'] && $_COOKIE['screen_name']) {
-      setcookie('oauth_token', $this->access_token['oauth_token'], time() + 60 * 60 * 24 * 30, '/');
-      setcookie('oauth_token_secret', $this->access_token['oauth_token_secret'], time() + 60 * 60 * 24 * 30, '/');
-      setcookie('user_id', $this->access_token['user_id'], time() + 60 * 60 * 24 * 30, '/');
-      setcookie('screen_name', $this->access_token['screen_name'], time() + 60 * 60 * 24 * 30, '/');
-      $this->access_token = array(
-          'oauth_token' => $_COOKIE['oauth_token'],
-          'oauth_token_secret' => $_COOKIE['oauth_token_secret'],
-          'user_id' => $_COOKIE['user_id'],
-          'screen_name' => $_COOKIE['screen_name']
-      );
+      Cookie::set($this->access_token);
+      $this->access_token = Cookie(array('oauth_token', 'oauth_token_secret', 'user_id', 'screen_name'));
       $_SESSION['access_token'] = $this->access_token;
     }
     if ($this->access_token) {
@@ -309,7 +295,7 @@ class Twitter {
       $retweetstatus = $retweet_count . '人がリツイート　';
     }
     if ($retweeted_user) {
-      $retweetstatus = $retweeted_user . 'がリツイート　' . $retweetstatus;
+      $retweetstatus = '<a href="' . Config::ROOT_ADDRESS . $retweeted_user . '/">' . $retweeted_user . 'がリツイート</a>　' . $retweetstatus;
     }
     return $retweetstatus;
   }
@@ -438,6 +424,44 @@ class Page {
       $previous = '&#60;';
     }
     return $previous . ' | ' . $next;
+  }
+
+}
+
+class Cookie {
+
+  public static function set($values) {
+    foreach ($values as $key => $value)
+      setcookie($key, $value, time() + 2592000, '/');
+  }
+
+  public static function get($keys) {
+    if (is_array($keys)) {
+      $values = array();
+      foreach ($keys as $key) {
+        $values[$key] = $_COOKIE[$key];
+      }
+    } else {
+      $values = $_COOKIE[$keys];
+    }
+    return $values;
+  }
+
+  public static function clear($keys) {
+    if (is_array($keys)) {
+      foreach ($keys as $key) {
+        setcookie($key, '', time() - 48000, '/');
+      }
+    } else {
+      setcookie($keys, '', time() - 48000, '/');
+    }
+  }
+
+  public static function allclear() {
+    $keys = array_keys($_COOKIE);
+    foreach ($keys as $key) {
+      setcookie($key, '', time() - 48000, '/');
+    }
   }
 
 }
