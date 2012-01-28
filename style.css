@@ -36,6 +36,35 @@ body{
   line-height: 1.3em;
 }
 
+img.icon{
+  width:48px;
+  height:48px;
+}
+
+.textmiddle {
+  margin-left: 36px;
+  line-height: 1.3em;
+}
+
+img.iconmiddle{
+  width:32px;
+  height:32px;
+}
+
+.textsmall {
+  margin-left: 20px;
+  line-height: 1.3em;
+}
+
+img.iconsmall{
+  width:16px;
+  height:16px;
+}
+
+.textnoicon {
+  line-height: 1.3em;
+}
+
 .icon{
   float:left;
 }
@@ -73,11 +102,6 @@ a {
 
 .small a {
   color: #999;
-}
-
-img.icon{
-  width:48px;
-  height:48px;
 }
 
 #footer {

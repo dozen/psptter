@@ -34,10 +34,8 @@ if ($_GET['s']) {
       $line = Twitter::Retweet($line);
       ?>
       <div class="normal">
-        <div class="icon">
-          <img class="icon" src="<?php echo $line->profile_image_url ?>">
-        </div>
-        <div class="text">
+        <?php echo Page::IconStyle($line->profile_image_url) ?>
+        <div class="<?php echo Page::TextStyle() ?>">
           <a href="<?php echo Config::ROOT_ADDRESS . $line->from_user ?>/"><?php echo $line->from_user ?></a> <span class="small"><?php echo $line->from_user_name ?></span><br>
           <?php echo nl2br(Twitter::StatusProcessing($line->text)) ?>
         </div>

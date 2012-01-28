@@ -59,10 +59,8 @@ if (isset($_GET['debug'])) {
       $line = Twitter::Retweet($line);
       ?>
       <div class="<?php echo $twitter->JudgeReply($line->text) ?>">
-        <div class="icon">
-          <img class="icon" src="<?php echo $line->user->profile_image_url ?>">
-        </div>
-        <div class="text">
+        <?php echo Page::IconStyle($line->user->profile_image_url) ?>
+        <div class="<?php echo Page::TextStyle() ?>">
           <a href="<?php echo Config::ROOT_ADDRESS . $line->user->screen_name ?>/"><?php echo $line->user->screen_name ?></a> <span class="small"><?php echo $line->user->name ?>　<?php echo $line->source ?>から</span><br>
   <?php echo Twitter::StatusProcessing($line->text) ?>
         </div>

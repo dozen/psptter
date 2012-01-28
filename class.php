@@ -359,6 +359,32 @@ class Timer {
 
 class Page {
 
+  public static function TextStyle() {
+    if ($_COOKIE['icon'] == 'disable') {
+      $class = 'textnoicon';
+    } else if ($_COOKIE['icon'] == 'middle') {
+      $class = 'textmiddle';
+    } else if ($_COOKIE['icon'] == 'small') {
+      $class = 'textsmall';
+    } else {
+      $class = 'text';
+    }
+    return $class;
+  }
+
+  public static function IconStyle($url) {
+    if ($_COOKIE['icon'] == 'disable') {
+      return null;
+    } else if ($_COOKIE['icon'] == 'middle') {
+      $class = 'iconmiddle';
+    } else if ($_COOKIE['icon'] == 'small') {
+      $class = 'iconsmall';
+    } else {
+      $class = 'icon';
+    }
+    return '<div class="icon"><img src="' . $url . '" class="' . $class . '"></div>';
+  }
+
   public static function Header() {
     $results = '<title>N-PSPったー</title>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">

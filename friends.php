@@ -45,8 +45,8 @@ if (isset($_GET['debug'])) {
     </div>
     <?php foreach ($status->users as $line) { ?>
       <div class="normal">
-        <div class="icon"><img class="icon" src="<?php echo $line->profile_image_url ?>"></div>
-        <div class="text">
+        <?php echo Page::IconStyle($line->profile_image_url) ?>
+        <div class="<?php echo Page::TextStyle() ?>">
           <a href="<?php echo Config::ROOT_ADDRESS . $line->screen_name ?>/"><?php echo $line->screen_name ?></a> <span class="small"><?php echo $line->name ?></span> <?php echo $twitter->Follow($line->id, $line->following) ?><br>
           <?php echo Twitter::StatusProcessing($line->description) ?>
         </div>
