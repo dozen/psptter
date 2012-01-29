@@ -26,13 +26,13 @@ if (isset($_POST['lojax'])) {
   if ($lojax == "disable" || $lojax == "enable") {
     Cookie::set(array('lojax' => $lojax));
   } else {
-    $lojax = 'enable';
+    $lojax = 'disable';
   }
 } else if (Cookie::get('lojax')) {
   $lojax = Cookie::get('lojax');
 } else {
-  Cookie::set(array('lojax' => 'enable'));
-  $lojax = 'enable';
+  Cookie::set(array('lojax' => 'disable'));
+  $lojax = 'disable';
 }
 
 $lojax_radio[$lojax] = "checked";
