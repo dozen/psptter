@@ -19,7 +19,7 @@ if ($_GET['s']) {
 <!DOCTYPE html>
 <html>
   <head>
-    <?php echo Page::Header() ?>
+    <?php echo $page->Header() ?>
   </head>
   <body>
     <div id="header">
@@ -34,8 +34,8 @@ if ($_GET['s']) {
       $line = Twitter::Retweet($line);
       ?>
       <div class="normal">
-        <?php echo Page::IconStyle($line->profile_image_url) ?>
-        <div class="<?php echo Page::TextStyle() ?>">
+        <?php echo $page->IconStyle($line->profile_image_url, $line->protected) ?>
+        <div class="<?php echo $page->TextStyle() ?>">
           <a href="<?php echo Config::ROOT_ADDRESS . $line->from_user ?>/"><?php echo $line->from_user ?></a> <span class="small"><?php echo $line->from_user_name ?></span><br>
           <?php echo nl2br(Twitter::StatusProcessing($line->text)) ?>
         </div>

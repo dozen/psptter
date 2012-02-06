@@ -23,7 +23,7 @@ if (isset($_GET['debug'])) {
 <!DOCTYPE html>
 <html>
   <head>
-    <?php echo Page::Header() ?>
+    <?php echo $page->Header() ?>
   </head>
   <body>
     <div id="header">
@@ -45,8 +45,8 @@ if (isset($_GET['debug'])) {
     </div>
     <?php foreach ($status->users as $line) { ?>
       <div class="normal">
-        <?php echo Page::IconStyle($line->profile_image_url) ?>
-        <div class="<?php echo Page::TextStyle() ?>">
+        <?php echo $page->IconStyle($line->profile_image_url, $line->protected) ?>
+        <div class="<?php echo $page->TextStyle() ?>">
           <a href="<?php echo Config::ROOT_ADDRESS . $line->screen_name ?>/"><?php echo $line->screen_name ?></a> <span class="small"><?php echo $line->name ?></span> <?php echo $twitter->Follow($line->id, $line->following) ?><br>
           <?php echo Twitter::StatusProcessing($line->description) ?>
         </div>

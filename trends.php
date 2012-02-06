@@ -17,7 +17,7 @@ $status = $twitter->GetStatus('trends');
 <!DOCTYPE html>
 <html>
   <head>
-    <?php echo Page::Header() ?>
+    <?php echo $page->Header() ?>
   </head>
   <body>
     <div id="header">

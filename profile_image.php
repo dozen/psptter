@@ -114,7 +114,7 @@ if ($_FILES['image']) {
 ?>
 
 <?php if ($http_status == 200) { ?>
-  成功しました。 <a href="http://npsptter.dip.jp/">戻る</a>
+  成功しました。 <a href="http://psptter.dip.jp/">戻る</a>
 <?php } else { ?>
-  失敗しました。 error code:<?php echo $http_status ?>　<a href="http://npsptter.dip.jp/">戻る</a>
+  失敗しました。 error code:<?php echo $http_status ?>　<a href="http://psptter.dip.jp/">戻る</a>
 <?php } ?>

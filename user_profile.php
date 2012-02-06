@@ -18,7 +18,7 @@ if ($_GET['screen_name']) {
 <!DOCTYPE html>
 <html>
   <head>
-    <?php echo Page::Header() ?>
+    <?php echo $page->Header() ?>
   </head>
   <body>
     <div id="header">
@@ -40,8 +40,8 @@ if ($_GET['screen_name']) {
     </div>
     <?php foreach ($status as $line) { ?>
       <div class="normal">
-        <?php echo Page::IconStyle($line->user->profile_image_url) ?>
-        <div class="<?php echo Page::TextStyle() ?>">
+        <?php echo $page->IconStyle($line->user->profile_image_url, $line->user->protected) ?>
+        <div class="<?php echo $page->TextStyle() ?>">
           <a href="<?php echo Config::ROOT_ADDRESS . $line->user->screen_name ?>/"><?php echo $line->user->screen_name ?></a> <span class="small"><?php echo $line->user->name ?>　<?php echo $line->source ?>から</span><br>
           <?php echo Twitter::StatusProcessing($line->text) ?>
         </div>

@@ -22,26 +22,27 @@ class Authering {
   }
 
   public static function Callback() {
-    if (isset($_REQUEST['oauth_token']) && $_SESSION['oauth_token'] !== $_REQUEST['oauth_token']) {
-      $_SESSION['oauth_status'] = 'oldtoken';
-      session_destroy();
-    }
     $callack = new TwitterOAuth(Config::CONSUMER_KEY, Config::CONSUMER_SECRET, $_SESSION['oauth_token'], $_SESSION['oauth_token_secret']);
     $access_token = $callack->getAccessToken($_REQUEST['oauth_verifier']);
-    $_SESSION['access_token'] = $access_token;
-//Cookieに登録する処理も加えておく。
-    unset($_SESSION['oauth_token']);
-    unset($_SESSION['oauth_token_secret']);
+    $oauthdata = new OAuthData();
+    if (Cookie::read('individual_value')) {
+      $oauthdata->accountput($access_token);
+    } else {
+      $oauthdata->registdata($access_token);
+    }
     if ($callack->http_code == 200) {
       header('location: ./');
     } else {
       return 'Authentication failed';
+      end;
     }
   }
 
   public static function Logout() {
-    Cookie::allclear();
     session_destroy();
+    $oauthdata = new OAuthData();
+    $oauthdata->allclear();
+    Cookie::allclear();
     header('Location: ./');
   }
 
@@ -56,23 +57,18 @@ class Twitter {
   public $profile;
 
   public function __construct() {
-    if ($_SESSION['access_token']) {
-      $this->access_token = $_SESSION['access_token'];
-      if (!($_COOKIE['oauth_token'] && $_COOKIE['oauth_token_secret'] && $_COOKIE['user_id'] && $_COOKIE['screen_name'])) {
-        Cookie::set($this->access_token);
-      }
-    } else if ($_COOKIE['oauth_token'] && $_COOKIE['oauth_token_secret'] && $_COOKIE['user_id'] && $_COOKIE['screen_name']) {
-      Cookie::set($this->access_token);
-      $this->access_token = Cookie(array('oauth_token', 'oauth_token_secret', 'user_id', 'screen_name'));
-      $_SESSION['access_token'] = $this->access_token;
+    $oauthdata = new OAuthData();
+    if ($_COOKIE['individual_value'] && $_COOKIE['account']) {
+      $this->access_token = $oauthdata->accountget();
     }
     if ($this->access_token) {
       $this->api = new TwitterOAuth(Config::CONSUMER_KEY, Config::CONSUMER_SECRET, $this->access_token['oauth_token'], $this->access_token['oauth_token_secret']);
       $this->m = new Memcache();
-      $this->m->pconnect('localhost', 11211); //Memcached接続
+      $this->m->pconnect(Config::MEMCACHEDADDR, Config::MEMCACHEDPORT); //Memcached接続
     } else {
       throw new Exception('Please Login');
     }
+    $this->config = $oauthdata->configget();
   }
 
   public function Tweet($type, $content) {
@@ -116,10 +112,10 @@ class Twitter {
     if (!$option['page']) {
       $option['page'] = 1;
     }
-    if (!$_COOKIE['count']) {
+    if (!$this->config['count']) {
       $option['count'] = 10;
     } else {
-      $option['count'] = $_COOKIE['count'];
+      $option['count'] = $this->config['count'];
     }
     $this->type = $type;
     if ($type == 'mentions') {
@@ -173,10 +169,10 @@ class Twitter {
     if (!$option['page']) {
       $option['page'] = 1;
     }
-    if (!$_COOKIE['count']) {
+    if (!$this->config['count']) {
       $option['rpp'] = 10;
     } else {
-      $option['rpp'] = $_COOKIE['count'];
+      $option['rpp'] = $this->config['count'];
     }
     $search = urlencode($option['s']);
     return json_decode($this->api->OAuthRequest("https://search.twitter.com/search.json?q=$search", "GET", $option));
@@ -184,10 +180,10 @@ class Twitter {
 
   public function GetTalk($status_id) {
     while ($status_id) {
-      $this->response = $this->m->get($_COOKIE['screen_name'] . ':status_id:' . $status_id);
+      $this->response = $this->m->get($this->access_token['screen_name'] . ':status_id:' . $status_id);
       if (!$this->response) {
         $this->response = $this->api->get('statuses/show', array('id' => $status_id));
-        $this->m->set($_COOKIE['screen_name'] . ':status_id:' . $status_id, $this->response, false, Config::CACHE_RIMIT);
+        $this->m->set($this->access_token['screen_name'] . ':status_id:' . $status_id, $this->response, false, Config::CACHE_RIMIT);
       }
       $this->status[] = $this->response;
       if ($this->response->in_reply_to_status_id) {
@@ -211,7 +207,7 @@ class Twitter {
   public function ToolBar($screen_name, $favorited, $status_id, $text, $in_reply_to_status_id) {
     $text = str_replace("\n", '\n', $text);
     $reply = ' | <a href="" onclick="add_text(\'@' . $screen_name . ' \',\'' . $status_id . '\');return false">返信</a>';
-    if ($_COOKIE['lojax'] == 'disable') {
+    if ($this->config['lojax'] == 'disable') {
       if ($screen_name == $this->access_token['screen_name']) {
 //ツイートの削除ボタン、RT、非公式RTを実装
         $destroy = ' | <a href="' . Config::ROOT_ADDRESS . 'send.php?destroy=' . $status_id . '">消</a>';
@@ -230,7 +226,7 @@ class Twitter {
       $this->i++;
       if ($screen_name == $this->access_token['screen_name']) {
 //ツイートの削除ボタン、RT、非公式RTを実装
-        $destroy = ' | <a href="" id="destroy' . $this->i . '" onclick="makeRequest(' . $status_id . ', ' . $this->i . ', \'destroy\');return false">消</a>';
+        $destroy = ' | <a href="" id="destroy' . $this->i . '" onclick="makeRequest(\'' . $status_id . '\', \'' . $this->i . '\', \'destroy\');return false">消</a>';
         $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | ';
       } else {
         $destroy = null;
@@ -242,12 +238,12 @@ class Twitter {
       } else {
         $fav = '<a href="" id="fav' . $this->i . '" onclick="makeRequest(\'' . $status_id . '\', \'' . $this->i . '\', \'fav\');return false">☆</a>';
       }
-//返信先
-      if ($in_reply_to_status_id) {
-        $mention = '<a href="' . Config::ROOT_ADDRESS . 'talk/' . $status_id . '">返信先</a> | ';
-      } else {
-        $mention = null;
-      }
+    }
+    //返信先
+    if ($in_reply_to_status_id) {
+      $mention = '<a href="' . Config::ROOT_ADDRESS . 'talk/' . $status_id . '">返信先</a> | ';
+    } else {
+      $mention = null;
     }
     return $mention . $rt . $fav . $destroy . $reply;
   }
@@ -264,7 +260,7 @@ class Twitter {
   }
 
   public static function StatusProcessing($status) {
-    $status = preg_replace("/http:\/\/t\.co\/[a-zA-Z0-9]{1,}/u", "<a target=\"_blank\" href=\"$0\">$0</a>", $status);
+    $status = preg_replace("/htt[ps]{1,}:\/\/t\.co\/[a-zA-Z0-9]{1,}/u", "<a target=\"_blank\" href=\"$0\">$0</a>", $status);
     $status = preg_replace("/[#＃]([a-zA-Z0-9-_一-龠あ-んア-ンーヽヾヴｦ-ﾟ々]{1,})/u", "<a href='" . Config::ROOT_ADDRESS . "search/?s=%23$1'>#$1</a>", $status);
     $status = preg_replace("/@([a-zA-Z0-9-_]{1,})/", "<a href='" . Config::ROOT_ADDRESS . "$1/'>@$1</a>", $status);
     return nl2br($status);
@@ -310,7 +306,7 @@ class Twitter {
   }
 
   public function Follow($user_id, $following) {
-    if ($_COOKIE['lojax'] == 'disable') {
+    if ($this->access_token['lojax'] == 'disable') {
       if ($following) {
         $results = '<a href="' . Config::ROOT_ADDRESS . 'send.php?remove=' . $user_id . '">リムーブ</a>';
       } else {
@@ -345,12 +341,17 @@ class Timer {
 
 class Page {
 
-  public static function TextStyle() {
-    if ($_COOKIE['icon'] == 'disable') {
+  public function __construct() {
+    $data = new OAuthData();
+    $this->config = $data->configget();
+  }
+
+  public function TextStyle() {
+    if ($this->config['icon'] == 'disable') {
       $class = 'textnoicon';
-    } else if ($_COOKIE['icon'] == 'middle') {
+    } else if ($this->config['icon'] == 'middle') {
       $class = 'textmiddle';
-    } else if ($_COOKIE['icon'] == 'small') {
+    } else if ($this->config['icon'] == 'small') {
       $class = 'textsmall';
     } else {
       $class = 'text';
@@ -358,25 +359,37 @@ class Page {
     return $class;
   }
 
-  public static function IconStyle($url) {
-    if ($_COOKIE['icon'] == 'disable') {
-      return null;
-    } else if ($_COOKIE['icon'] == 'middle') {
+  public function IconStyle($url, $protected) {
+    if ($this->config['icon'] == 'disable') {
+      if ($protected) {
+        $protected = '<div class="icon"><img src="' . Config::ROOT_ADDRESS . 'smallprotected.png"></div>';
+      }
+      return $protected;
+    } else if ($this->config['icon'] == 'middle') {
+      if ($protected) {
+        $protected = '<img class="protected" src="' . Config::ROOT_ADDRESS . 'smallprotected.png">';
+      }
       $class = 'iconmiddle';
-    } else if ($_COOKIE['icon'] == 'small') {
+    } else if ($this->config['icon'] == 'small') {
+      if ($protected) {
+        $protected = '<img class="protected" src="' . Config::ROOT_ADDRESS . 'smallprotected.png">';
+      }
       $class = 'iconsmall';
     } else {
+      if ($protected) {
+        $protected = '<img class="protected" src="' . Config::ROOT_ADDRESS . 'protected.png">';
+      }
       $class = 'icon';
     }
-    return '<div class="icon"><img src="' . $url . '" class="' . $class . '"></div>';
+    return '<div class="icon">' . $protected . '<img src="' . $url . '" class="' . $class . '"></div>';
   }
 
-  public static function Header() {
-    $results = '<title>N-PSPったー</title>
+  public function Header() {
+    $results = '<title>PSPったー</title>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
       <link href="' . Config::ROOT_ADDRESS . 'style.css" rel="stylesheet" type="text/css">
       <script src="' . Config::ROOT_ADDRESS . 'js.js" type="text/javascript"></script>';
-    if ($_COOKIE['lojax'] == "enable") {
+    if ($this->config['lojax'] == "enable") {
       $results = $results . '
         <script src="' . Config::ROOT_ADDRESS . 'lojax.js" type="text/javascript"></script>';
     }
@@ -398,6 +411,7 @@ class Page {
   }
 
   public static function Navi($page, $s) {
+    //ページネーション
     if ($s) {
       $s = '?s=' . urlencode($s);
     } else {
@@ -413,6 +427,7 @@ class Page {
   }
 
   public static function Cursor($next, $previous) {
+    //フォロー・フォロワーのページネーション
     if ($next) {
       $next = '<a href="' . $next . '">&#62;</a>';
     } else {
@@ -428,14 +443,119 @@ class Page {
 
 }
 
-class Cookie {
+//Page()のインスタンスを作成！
+$page = new Page();
 
-  public static function set($values) {
-    foreach ($values as $key => $value)
-      setcookie($key, $value, time() + 2592000, '/');
+class Data {
+
+  public function __construct() {
+    $this->kumo = new Memcache();
+    $this->kumo->pconnect(Config::KUMOFSHOST, Config::KUMOFSPORT);
   }
 
-  public static function get($keys) {
+  //データの書き込み
+  public function write($key, $value) {
+    $this->kumo->set($key, serialize($value), false, 2592000);
+  }
+
+  //データの読み込み
+  public function read($keys) {
+    $values = $this->kumo->get($keys);
+    return unserialize($values);
+  }
+
+  //データの削除
+  public function delete($keys) {
+    $this->kumo->delete($keys);
+  }
+
+}
+
+class OAuthData {
+
+  public function __construct() {
+    $this->data = new Data();
+  }
+
+  public function accountget() {
+    $account = $_COOKIE['account'];
+    $individual_value = md5($_COOKIE['individual_value']);
+    $oauthdata = $this->data->read($individual_value);
+    return $oauthdata['account'][$account];
+  }
+
+  public function configget() {
+    $individual_value = md5($_COOKIE['individual_value']);
+    $oauthdata = $this->data->read($individual_value);
+    return $oauthdata['config'];
+  }
+
+  public function accountlist() {
+    $individual_value = md5($_COOKIE['individual_value']);
+    $accountlist = $this->data->read($individual_value);
+    return array_keys($accountlist['account']);
+  }
+
+  public function configput($key, $value) {
+    $individual_value = md5($_COOKIE['individual_value']);
+    $data = $this->data->read($individual_value);
+    $data['config'][$key] = $value;
+    $this->data->write($individual_value, $data);
+  }
+
+  public function accountput($accsess_token) {
+    $account = $accsess_token['screen_name'];
+    $individual_value = md5($_COOKIE['individual_value']);
+    $oauthdata = $this->data->read($individual_value);
+    $oauthdata['account'][$account] = $accsess_token;
+    $this->data->write($individual_value, $oauthdata);
+    Cookie::write(array('account' => $account));
+  }
+
+  public function accountclear($account) {
+    $individual_value = md5($_COOKIE['individual_value']);
+    $oauthdata = $this->data->read($individual_value);
+    if (count($oauthdata['account']) > 1) {
+      unset($oauthdata['account'][$account]);
+      $this->data->write($individual_value, $oauthdata);
+    }
+  }
+
+  public function allclear() {
+    $this->data->delete(md5($_COOKIE['individual_value']));
+  }
+
+  //初回認証時にデータを登録
+  public function registdata($oauthdata) {
+    $registdata = array(
+        'config' => array(
+            'count' => 10,
+            'footer' => '',
+            'icon' => 'normal',
+            'lojax' => 'disable'
+        ),
+        'account' => array(
+            $oauthdata['screen_name'] => $oauthdata
+        )
+    );
+    $individual_value = md5($oauthdta['screen_name'] . $_SERVER['REMOTE_ADDR'] . microtime(true));
+    $this->data->write(md5($individual_value), $registdata);
+    Cookie::write(array('account' => $oauthdata['screen_name'], 'individual_value' => $individual_value));
+  }
+
+}
+
+class Cookie {
+
+  public static function write($values) {
+    //Cookieを登録
+    foreach ($values as $key => $value) {
+      setcookie($key, $value, time() + 2592000, '/');
+    }
+  }
+
+  public static function read($keys) {
+    //Cookieを取得
     if (is_array($keys)) {
       $values = array();
       foreach ($keys as $key) {
@@ -448,6 +568,7 @@ class Cookie {
   }
 
   public static function clear($keys) {
+    //Cookieを破棄
     if (is_array($keys)) {
       foreach ($keys as $key) {
         setcookie($key, '', time() - 48000, '/');
@@ -457,11 +578,21 @@ class Cookie {
     }
   }
 
-  public static function allclear() {
-    $keys = array_keys($_COOKIE);
-    foreach ($keys as $key) {
-      setcookie($key, '', time() - 48000, '/');
+  public static function getoauth() {
+    //OAuthのCookieを取得
+    $oauth = array();
+    $keys = $_COOKIE;
+    foreach ($keys as $key => $value) {
+      if (!(strpos($key, 'oauth') === false) || !(strpos($key, 'user_id') === false) || !(strpos($key, 'screen_name') === false)) {
+        $oauth[$key] = $value;
+      }
     }
+    return $oauth;
+  }
+
+  public static function allclear() {
+    //OAuthのCookieをすべて破棄
+    self::clear(array_keys($_COOKIE));
   }
 
 }

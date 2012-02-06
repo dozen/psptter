@@ -108,3 +108,7 @@ a {
   clear:both;
   margin: 5px;
 }
+
+.protected {
+  position:absolute;
+}

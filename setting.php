@@ -1,38 +1,35 @@
 <?php
 require 'class.php';
-
+$data = new OAuthData();
+$config = $data->configget();
+$accountlist = $data->accountlist();
 if (is_numeric($_POST['count'])) {
   $count = $_POST['count'];
-  Cookie::set(array('count' => $count));
-} else if (Cookie::get('count')) {
-  $count = Cookie::get('count');
+  $data->configput('count', $count);
 } else {
-  $count = 10;
+  $count = $config['count'];
 }
 
 if (isset($_POST['footer'])) {
   $footer = $_POST['footer'];
   if ($footer) {
-    Cookie::set(array('footer' => $footer));
+    $data->configput('footer', $footer);
   } else {
-    Cookie::clear('footer');
+    $data->configput('footer', '');
   }
-} else if (Cookie::get('footer')) {
-  $footer = Cookie::get('footer');
+} else if ($config['footer']) {
+  $footer = $config['footer'];
 }
 
 if (isset($_POST['lojax'])) {
   $lojax = $_POST['lojax'];
   if ($lojax == "disable" || $lojax == "enable") {
-    Cookie::set(array('lojax' => $lojax));
+    $data->configput('lojax', $lojax);
   } else {
     $lojax = 'disable';
   }
-} else if (Cookie::get('lojax')) {
-  $lojax = Cookie::get('lojax');
-} else {
-  Cookie::set(array('lojax' => 'disable'));
-  $lojax = 'disable';
+} else if ($config['lojax']) {
+  $lojax = $config['lojax'];
 }
 
 $lojax_radio[$lojax] = "checked";
@@ -40,18 +37,32 @@ $lojax_radio[$lojax] = "checked";
 if (isset($_POST['icon'])) {
   $icon = $_POST['icon'];
   if ($icon == "disable" || $icon == "middle" || $icon == 'small' || $icon == 'normal') {
-    Cookie::set(array('icon' => $icon));
+    $data->configput('icon', $icon);
   } else {
     $icon = 'normal';
   }
-} else if (Cookie::get('icon')) {
-  $icon = Cookie::get('icon');
-} else {
-  Cookie::set(array('icon' => 'normal'));
-  $icon = 'normal';
+} else if ($config['icon']) {
+  $icon = $config['icon'];
 }
 
 $icon_radio[$icon] = 'checked';
+
+$activeaccount = Cookie::read('account');
+if ($_POST['account']) {
+  $targetaccount = $_POST['account'];
+  if($_POST['accountcontrol'] == 'delete') {
+    $data->accountclear($targetaccount);
+    $disableaccount = array_keys($accountlist, $targetaccount);
+    unset($accountlist[$disableaccount]);
+    if ($targetaccount == $activeaccount) {
+      $activeaccount = $accountlist[0];
+      Cookie::write(array('account' => $activeaccount));
+    }
+  } else if ($_POST['accountcontrol'] == 'change') {
+    Cookie::write(array('account' => $targetaccount));
+    $activeaccount = $targetaccount;
+  }
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -85,6 +96,19 @@ $icon_radio[$icon] = 'checked';
           Lojax
           <input type="radio" name="lojax" value="enable" <?php echo $lojax_radio['enable'] ?>> 有効
           <input type="radio" name="lojax" value="disable" <?php echo $lojax_radio['disable'] ?>> 無効
+        </p>
+        <p>
+          <select name="account">
+            <?php foreach($accountlist as $account) { ?>
+            <?php if ($account == $activeaccount) { ?>
+            <option value="<?php echo $account ?>" selected><?php echo $account ?></option>
+            <?php } else { ?>
+            <option value="<?php echo $account ?>"><?php echo $account ?></option>
+            <?php } } ?>
+          </select>
+          変更<input type="radio" name="accountcontrol" value="change" checked>
+          削除<input type="radio" name="accountcontrol" value="delete">
+          <a href="<?php echo Config::ROOT_ADDRESS ?>?redirect">アカウントの追加</a>
         </p>
         <input type="submit" value="設定終了">
       </form>
