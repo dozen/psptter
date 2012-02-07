@@ -54,11 +54,12 @@ if ($_POST['account']) {
     $data->accountclear($targetaccount);
     $disableaccount = array_keys($accountlist, $targetaccount);
     unset($accountlist[$disableaccount]);
+    $accountlist = array_values($accountlist);
     if ($targetaccount == $activeaccount) {
       $activeaccount = $accountlist[0];
       Cookie::write(array('account' => $activeaccount));
     }
-  } else if ($_POST['accountcontrol'] == 'change') {
+  } else {
     Cookie::write(array('account' => $targetaccount));
     $activeaccount = $targetaccount;
   }
@@ -87,15 +88,15 @@ if ($_POST['account']) {
         </p>
         <p>
           アイコン
-          <input type="radio" name="icon" value="normal" <?php echo $icon_radio['normal'] ?>> 普通(48px)
-          <input type="radio" name="icon" value="middle" <?php echo $icon_radio['middle'] ?>> 中(32px)
-          <input type="radio" name="icon" value="small" <?php echo $icon_radio['small'] ?>> 小(16px)
-          <input type="radio" name="icon" value="disable" <?php echo $icon_radio['disable'] ?>> なし
+          <input type="radio" name="icon" value="normal" <?php echo $icon_radio['normal'] ?>>普通(48px)
+          <input type="radio" name="icon" value="middle" <?php echo $icon_radio['middle'] ?>>中(32px)
+          <input type="radio" name="icon" value="small" <?php echo $icon_radio['small'] ?>>小(16px)
+          <input type="radio" name="icon" value="disable" <?php echo $icon_radio['disable'] ?>>なし
         </p>
         <p>
           Lojax
-          <input type="radio" name="lojax" value="enable" <?php echo $lojax_radio['enable'] ?>> 有効
-          <input type="radio" name="lojax" value="disable" <?php echo $lojax_radio['disable'] ?>> 無効
+          <input type="radio" name="lojax" value="enable" <?php echo $lojax_radio['enable'] ?>>有効
+          <input type="radio" name="lojax" value="disable" <?php echo $lojax_radio['disable'] ?>>無効
         </p>
         <p>
           <select name="account">
@@ -106,8 +107,7 @@ if ($_POST['account']) {
             <option value="<?php echo $account ?>"><?php echo $account ?></option>
             <?php } } ?>
           </select>
-          変更<input type="radio" name="accountcontrol" value="change" checked>
-          削除<input type="radio" name="accountcontrol" value="delete">
+          <input type="checkbox" name="accountcontrol" value="delete">削除
           <a href="<?php echo Config::ROOT_ADDRESS ?>?redirect">アカウントの追加</a>
         </p>
         <input type="submit" value="設定終了">

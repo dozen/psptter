@@ -6,10 +6,12 @@
  * ------------------------------------------------------- */
 if ($_FILES['image']) {
   require 'config.php';
+  $oauthdata = new OAuthData();
+  $data = $oauthdata->accountget();
   $consumer_key = Config::CONSUMER_KEY;
   $consumer_secret = Config::CONSUMER_SECRET;
-  $oauth_token = $_COOKIE['oauth_token'];
-  $oauth_token_secret = $_COOKIE['oauth_token_secret'];
+  $oauth_token = $data['oauth_token'];
+  $oauth_token_secret = $data['oauth_token_secret'];
 
   /**
    * custom space of Request

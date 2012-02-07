@@ -64,7 +64,7 @@ class Twitter {
     if ($this->access_token) {
       $this->api = new TwitterOAuth(Config::CONSUMER_KEY, Config::CONSUMER_SECRET, $this->access_token['oauth_token'], $this->access_token['oauth_token_secret']);
       $this->m = new Memcache();
-      $this->m->pconnect(Config::MEMCACHEDADDR, Config::MEMCACHEDPORT); //Memcached接続
+      $this->m->pconnect(Config::MEMCACHEDHOST, Config::MEMCACHEDPORT); //Memcached接続
     } else {
       throw new Exception('Please Login');
     }

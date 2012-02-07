@@ -2,9 +2,6 @@
 require 'class.php';
 $stopwatch = new Timer();
 
-if (isset($_GET['message'])) {
-  echo $_GET['message'];
-}
 //認証
 if (isset($_GET['redirect'])) {
   Authering::Redirect();
