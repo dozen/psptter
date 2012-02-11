@@ -1,5 +1,6 @@
 <?php
 require 'class.php';
+$stopwatch = new Timer();
 try {
   $twitter = new Twitter();
 } catch (Exception $e) {
@@ -55,7 +56,7 @@ if (isset($_GET['debug'])) {
     <?php } ?>
     <div id="footer">
       <?php echo Page::Cursor($status->next_cursor, $status->previous_cursor) ?><br>
-      <?php echo $stopwatch->Show() . ' 秒' ?>
+      <?php echo $stopwatch->Show() ?>
     </div>
   </body>
 </html>

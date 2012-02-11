@@ -5,7 +5,7 @@
  * License: MIT or BSD
  * ------------------------------------------------------- */
 if ($_FILES['image']) {
-  require 'config.php';
+  require 'class.php';
   $oauthdata = new OAuthData();
   $data = $oauthdata->accountget();
   $consumer_key = Config::CONSUMER_KEY;

@@ -84,7 +84,7 @@ if ($_POST['account']) {
         </p>
         <p>
           フッター
-          <input type="text" size="20" name="footer" value="<?php echo htmlspecialchars($footer) ?>">
+          <input type="text" size="20" name="footer" value="<?php echo htmlspecialchars($footer) ?>"> <a href="<?php echo Config::ROOT_ADDRESS ?>help.html#footer">?</a>
         </p>
         <p>
           アイコン
@@ -94,9 +94,9 @@ if ($_POST['account']) {
           <input type="radio" name="icon" value="disable" <?php echo $icon_radio['disable'] ?>>なし
         </p>
         <p>
-          Lojax
+          LoJAX
           <input type="radio" name="lojax" value="enable" <?php echo $lojax_radio['enable'] ?>>有効
-          <input type="radio" name="lojax" value="disable" <?php echo $lojax_radio['disable'] ?>>無効
+          <input type="radio" name="lojax" value="disable" <?php echo $lojax_radio['disable'] ?>>無効 <a href="<?php echo Config::ROOT_ADDRESS ?>help.html#lojax">?</a>
         </p>
         <p>
           <select name="account">

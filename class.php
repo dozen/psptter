@@ -60,6 +60,7 @@ class Twitter {
     $oauthdata = new OAuthData();
     if ($_COOKIE['individual_value'] && $_COOKIE['account']) {
       $this->access_token = $oauthdata->accountget();
+      $this->config = $oauthdata->configget();
     }
     if ($this->access_token) {
       $this->api = new TwitterOAuth(Config::CONSUMER_KEY, Config::CONSUMER_SECRET, $this->access_token['oauth_token'], $this->access_token['oauth_token_secret']);
@@ -68,7 +69,6 @@ class Twitter {
     } else {
       throw new Exception('Please Login');
     }
-    $this->config = $oauthdata->configget();
   }
 
   public function Tweet($type, $content) {
@@ -306,7 +306,7 @@ class Twitter {
   }
 
   public function Follow($user_id, $following) {
-    if ($this->access_token['lojax'] == 'disable') {
+    if ($this->config['lojax'] == 'disable') {
       if ($following) {
         $results = '<a href="' . Config::ROOT_ADDRESS . 'send.php?remove=' . $user_id . '">リムーブ</a>';
       } else {
@@ -334,7 +334,7 @@ class Timer {
   }
 
   public function Show() {
-    return microtime(true) - $this->time;
+    return round(microtime(true) - $this->time, 3) . '秒';
   }
 
 }
@@ -407,6 +407,7 @@ class Page {
   <a href="' . Config::ROOT_ADDRESS . 'search/">検索</a>
   <a href="' . Config::ROOT_ADDRESS . 'trends/">トレンド</a>
   <a href="' . Config::ROOT_ADDRESS . 'setting/">設定</a>
+  <a href="' . Config::ROOT_ADDRESS . 'help.html">HELP</a>
   </div>';
   }
 
@@ -456,12 +457,18 @@ class Data {
   //データの書き込み
   public function write($key, $value) {
     $this->kumo->set($key, serialize($value), false, 2592000);
+    $this->cache = $value;
   }
 
   //データの読み込み
   public function read($keys) {
-    $values = $this->kumo->get($keys);
-    return unserialize($values);
+    if ($this->cache) {
+      $values = $this->cache;
+    } else {
+      $values = unserialize($this->kumo->get($keys));
+      $this->cache = $values;
+    }
+    return $values;
   }
 
   //データの削除

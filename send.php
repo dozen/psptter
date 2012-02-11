@@ -1,8 +1,6 @@
 <?php
 
 require 'class.php';
-$data = new OAuthData();
-$config = $data->configget();
 try {
   $twitter = new Twitter();
 } catch (Exception $e) {
@@ -11,8 +9,8 @@ try {
 }
 //投稿系の処理。
 if (isset($_POST['tweet'])) {
-  if ($config['footer'] && !$_POST['id']) {
-    $tweet = $_POST['tweet'] . ' ' . $config['footer'];
+  if ($twitter->config['footer'] && !$_POST['id']) {
+    $tweet = $_POST['tweet'] . ' ' . $twitter->config['footer'];
   } else {
     $tweet = $_POST['tweet'];
   }
