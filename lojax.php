@@ -16,7 +16,7 @@ function lojax_request($uri, $method, $postdata, $auth) {
   $response = array('Body' => '', 'Errors' => '');
 
   //if the uri is a local path and not a uri
-  if (!ereg('^[a-z]+\:\/\/', $uri)) {
+  if (!preg_match('/^[a-z]+\:\/\//', $uri)) {
     //get the parts for the current script uri
     $parts = parse_url($_SERVER['SCRIPT_URI']);
 
@@ -68,7 +68,7 @@ function lojax_request($uri, $method, $postdata, $auth) {
   //define an error in the response status
   //and an explanation in the response errors array
   //(for client-side throw()), then return the reponse
-  if (!ereg('^(http)$', $parts['scheme'])) {
+  if (!preg_match('/^(http)$/', $parts['scheme'])) {
     $response['Status'] = 'HTTP/1.0 467 Unsupported Protocol';
     $response['Errors'] = '[LoJAX] Unsupported protocol ' . $parts['scheme'] . '://';
     return $response;
@@ -198,7 +198,7 @@ if (isset($_GET['lojax_uri'])) {
 
     //while the status code is 301, 302, 303 or 307 (non-proxy redirect)
     //** don't support proxy redirect (305) because I don't know how to deal with it
-    while (ereg('( 30[1237] )', $response['Status'])) {
+    while (preg_match('/( 30[1237] )/u', $response['Status'])) {
       //add to redirects iterations, and if it goes over 5, break
       //the end result of breaking when finding a recursive redirect will be a 302 (Found) status code
       //with headers for the file it found, but no response body
@@ -232,7 +232,7 @@ if (isset($_GET['lojax_uri'])) {
           //so it's no loss to remove it from the general headers information,
           //and it's consistent with native implementations)
           //don't include the errors either, which are custom messages just for this program
-          if (!ereg('^(Body|Status|Errors)$', $key)) {
+          if (!preg_match('/^(Body|Status|Errors)$/', $key)) {
             $headers .= $key . ': ' . $data . "\n";
           }
         }
@@ -253,7 +253,7 @@ if (isset($_GET['lojax_uri'])) {
       //store the status value with + for space in description
       //so that the javascript can split its key parts using space delimiter
       $status = str_replace(' ', '+', $response['Status']);
-      $status = ereg_replace('[\+]([0-9]{3})[\+]', ' \\1 ', $status);
+      $status = preg_replace('/[\\\+][0-9]{3}[\\\+]/u', ' \\1 ', $status);
     }
   }
 }
@@ -268,8 +268,8 @@ header('Content-Type: text/html; charset=utf-8');
 header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
 header('Pragma: no-cache');
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
+<!DOCTYPE html>
+<html>
   <head>
     <title>LoJAX [courier page]</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
