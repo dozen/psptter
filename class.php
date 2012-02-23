@@ -2,11 +2,11 @@
 
 require 'twitteroauth/twitteroauth.php';
 require 'config.php';
-session_start();
 
 class Authering {
 
   public static function Redirect() {
+    session_start();
     $redirect = new TwitterOAuth(Config::CONSUMER_KEY, Config::CONSUMER_SECRET);
     $request_token = $redirect->getRequestToken(Config::OAUTH_CALLBACK);
     $_SESSION['oauth_token'] = $token = $request_token['oauth_token'];
@@ -22,6 +22,7 @@ class Authering {
   }
 
   public static function Callback() {
+    session_start();
     $callack = new TwitterOAuth(Config::CONSUMER_KEY, Config::CONSUMER_SECRET, $_SESSION['oauth_token'], $_SESSION['oauth_token_secret']);
     $access_token = $callack->getAccessToken($_REQUEST['oauth_verifier']);
     $oauthdata = new OAuthData();
@@ -154,10 +155,9 @@ class Twitter {
     if ($option['page'] == 1 && $type != 'statuses/user_timeline' && $type != 'statuses/friends' && $type != 'statuses/followers') {
       $this->cache = $this->m->get($this->access_token['screen_name'] . ':' . $type);
       if (strtotime($this->cache[0]->created_at) >= strtotime($this->status[0]->created_at)) {
-        $this->m->set($this->access_token['screen_name'] . ':' . $type, $this->cache, false, Config::CACHE_RIMIT);
         return $this->cache;
       } else {
-        $this->m->set($this->access_token['screen_name'] . ':' . $type, $this->status, false, Config::CACHE_RIMIT);
+        $this->m->set($this->access_token['screen_name'] . ':' . $type, $this->status, 0, Config::CACHE_RIMIT);
         return $this->status;
       }
     } else {
@@ -183,7 +183,7 @@ class Twitter {
       $this->response = $this->m->get($this->access_token['screen_name'] . ':status_id:' . $status_id);
       if (!$this->response) {
         $this->response = $this->api->get('statuses/show', array('id' => $status_id));
-        $this->m->set($this->access_token['screen_name'] . ':status_id:' . $status_id, $this->response, false, Config::CACHE_RIMIT);
+        $this->m->set($this->access_token['screen_name'] . ':status_id:' . $status_id, $this->response, 0, Config::CACHE_RIMIT);
       }
       $this->status[] = $this->response;
       if ($this->response->in_reply_to_status_id) {
@@ -299,7 +299,7 @@ class Twitter {
   public function UserProfile($screen_name) {
     if ($this->type == 'user_timeline' && $this->page == 1) {
       $this->profile = $this->status[0]->user;
-      $this->m->set($this->access_token['screen_name'] . ':profile:' . $this->profile->screen_name, $this->profile, false, Config::CACHE_RIMIT);
+      $this->m->set($this->access_token['screen_name'] . ':profile:' . $this->profile->screen_name, $this->profile, 0, Config::CACHE_RIMIT);
     } else {
       $this->profile = $this->m->get($this->access_token['screen_name'] . ':profile:' . $screen_name);
     }
@@ -454,19 +454,26 @@ class Data {
     $this->kumo->pconnect(Config::KUMOFSHOST, Config::KUMOFSPORT);
   }
 
-  //データの書き込み
+  //データの書き込み。成功した時のみキャッシュする。
   public function write($key, $value) {
-    $this->kumo->set($key, serialize($value), false, 2592000);
-    $this->cache = $value;
+    $result = $this->kumo->set($key, serialize($value), false, 2592000);
+    if ($result) {
+      $this->cache->$key = $value;
+    }
+    return $result;
   }
 
-  //データの読み込み
+  //データの読み込み。まとめて取得するときはキャッシュ無効（そのうち対応する）
   public function read($keys) {
-    if ($this->cache) {
-      $values = $this->cache;
+    if (!is_array($keys)) {
+      if ($this->cache->$keys) {
+        $values = $this->cache->$keys;
+      } else {
+        $values = unserialize($this->kumo->get($keys));
+        $this->cache->$keys = $values;
+      }
     } else {
       $values = unserialize($this->kumo->get($keys));
-      $this->cache = $values;
     }
     return $values;
   }
@@ -474,6 +481,7 @@ class Data {
   //データの削除
   public function delete($keys) {
     $this->kumo->delete($keys);
+    unset($this->cache);
   }
 
 }
@@ -491,36 +499,48 @@ class OAuthData {
     return $oauthdata['account'][$account];
   }
 
+  //設定の読み込み
   public function configget() {
     $individual_value = md5($_COOKIE['individual_value']);
     $oauthdata = $this->data->read($individual_value);
     return $oauthdata['config'];
   }
 
+  //アカウント一覧
   public function accountlist() {
     $individual_value = md5($_COOKIE['individual_value']);
     $accountlist = $this->data->read($individual_value);
     return array_keys($accountlist['account']);
   }
 
+  //設定の書き込み
   public function configput($key, $value) {
     $individual_value = md5($_COOKIE['individual_value']);
     $data = $this->data->read($individual_value);
     $data['config'][$key] = $value;
-    $this->data->write($individual_value, $data);
+    $result = $this->data->write($individual_value, $data);
+    return $result;
   }
 
+  //アカウント追加
   public function accountput($accsess_token) {
     $account = $accsess_token['screen_name'];
-    $individual_value = md5($_COOKIE['individual_value']);
-    $oauthdata = $this->data->read($individual_value);
-    $oauthdata['account'][$account] = $accsess_token;
-    $this->data->write($individual_value, $oauthdata);
-    Cookie::write(array('account' => $account));
+    $individual_value = md5(Cookie::read('individual_value'));
+    $cachedata = $this->data->read($individual_value);
+    if ($cachedata) {
+      $cachedata['account'][$account] = $accsess_token;
+    } else {
+      return $this->registdata($access_token);
+    }
+    $result = $this->data->write($individual_value, $cachedata);
+    if ($result) {
+      Cookie::write(array('account' => $account));
+    }
+    return $result;
   }
 
   public function accountclear($account) {
-    $individual_value = md5($_COOKIE['individual_value']);
+    $individual_value = md5(Cookie::read('individual_value'));
     $oauthdata = $this->data->read($individual_value);
     if (count($oauthdata['account']) > 1) {
       unset($oauthdata['account'][$account]);
@@ -529,7 +549,7 @@ class OAuthData {
   }
 
   public function allclear() {
-    $this->data->delete(md5($_COOKIE['individual_value']));
+    $this->data->delete(md5(Cookie::read('individual_value')));
   }
 
   //初回認証時にデータを登録
@@ -546,8 +566,11 @@ class OAuthData {
         )
     );
     $individual_value = md5($oauthdta['screen_name'] . $_SERVER['REMOTE_ADDR'] . microtime(true));
-    $this->data->write(md5($individual_value), $registdata);
-    Cookie::write(array('account' => $oauthdata['screen_name'], 'individual_value' => $individual_value));
+    $result = $this->data->write(md5($individual_value), $registdata);
+    if ($result) {
+      Cookie::write(array('account' => $oauthdata['screen_name'], 'individual_value' => $individual_value));
+    }
+    return $result;
   }
 
 }
@@ -604,6 +627,7 @@ class Cookie {
 
 }
 
+//顔文字の変換
 function aa($object) {
   $aa = array(
       'str' => array(
@@ -639,4 +663,8 @@ function aa($object) {
   return str_replace($aa['str'], $aa['aa'], $object);
 }
 
+//ブラウザキャッシュを無効化
+header('Content-type: text/html; charset=UTF-8');
+header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+header('Pragma: no-cache');
 ?>
