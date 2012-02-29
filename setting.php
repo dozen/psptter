@@ -50,7 +50,7 @@ $icon_radio[$icon] = 'checked';
 $activeaccount = Cookie::read('account');
 if ($_POST['account']) {
   $targetaccount = $_POST['account'];
-  if($_POST['accountcontrol'] == 'delete') {
+  if ($_POST['accountcontrol'] == 'delete') {
     $data->accountclear($targetaccount);
     $disableaccount = array_keys($accountlist, $targetaccount);
     unset($accountlist[$disableaccount]);
@@ -100,12 +100,13 @@ if ($_POST['account']) {
         </p>
         <p>
           <select name="account">
-            <?php foreach($accountlist as $account) { ?>
-            <?php if ($account == $activeaccount) { ?>
-            <option value="<?php echo $account ?>" selected><?php echo $account ?></option>
-            <?php } else { ?>
-            <option value="<?php echo $account ?>"><?php echo $account ?></option>
-            <?php } } ?>
+            <?php foreach ($accountlist as $account) { ?>
+              <?php if ($account == $activeaccount) { ?>
+                <option value="<?php echo $account ?>" selected><?php echo $account ?></option>
+              <?php } else { ?>
+                <option value="<?php echo $account ?>"><?php echo $account ?></option>
+              <?php }
+            } ?>
           </select>
           <input type="checkbox" name="accountcontrol" value="delete">削除
           <a href="<?php echo Config::ROOT_ADDRESS ?>?redirect">アカウントの追加</a>

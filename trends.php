@@ -24,9 +24,7 @@ $status = $twitter->GetStatus('trends');
       <?php echo Page::MenuBar() ?>
     </div>
     <div class="normal" style="line-height:1.5em">
-      <?php foreach ($status[0]->trends as $line) {
-        echo Twitter::TrendsProcessing($line->name);
-      } ?>
+      <?php foreach ($status[0]->trends as $line) { echo Twitter::TrendsProcessing($line->name); } ?>
     </div>
     <div id="footer">
       <div style="text-align:right">
