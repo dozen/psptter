@@ -81,37 +81,58 @@ class Twitter {
   //ツイートなど
   public function Tweet($type, $content) {
     $this->type = $type;
-    if ($type == 'tweet') {
-      //ツイート
-      if (strlen($content['id']) > 18) {
-        //in_reply_toの値がおかしかったら無視する
-        $content['id'] = null;
-      }
-      $this->api->post('statuses/update', array('status' => $content['tweet'], 'in_reply_to_status_id' => $content['id']));
-    } else if ($type == 'retweet') {
-      //公式RT
-      return $this->api->OAuthRequest("https://twitter.com/statuses/retweet/{$content['id']}.json", "POST", "");
-    } else if ($type == 'fav_dest') {
-      //FAVの削除
-      $this->api->OAuthRequest("https://twitter.com/favorites/destroy/{$content['id']}.json", "POST", "");
-    } else if ($type == 'fav') {
-      //FAVの登録
-      $this->api->OAuthRequest("https://twitter.com/favorites/create/{$content['id']}.json", "POST", "");
-    } else if ($type == 'follow') {
-      //フォロー
-      $this->api->OAuthRequest("https://twitter.com/friendships/create/{$content['user_id']}.json", "POST", "");
-    } else if ($type == 'remove') {
-      //リムる
-      $this->api->OAuthRequest("https://twitter.com/friendships/destroy/{$content['user_id']}.json", "POST", "");
-    } else if ($type == 'destroy') {
-      //ツイートの削除
-      $this->api->post('statuses/destroy', array('id' => $content['id']));
-    } else if ($type == 'dm') {
-      //DMの送信
-      $this->api->post('direct_messages/new', array('text' => $content['tweet'], 'user' => $content['user']));
-    } else if ($type == 'dm_destroy') {
-      //DMの削除
-      //そのうち実装する
+    switch ($type) {
+      case 'tweet':
+        if (strlen($content['id']) > 18) {
+          //in_reply_toの値がおかしかったら無視する
+          $content['id'] = null;
+        }
+        $url = 'statuses/update';
+        $parameters = array(
+            'status' => $content['tweet'],
+            'in_reply_to_status_id' => $content['id']
+            );
+        break;
+
+      case 'retweet': //公式RT
+        $url = 'statuses/retweet/' . $content['id'];
+        break;
+
+      case 'fav_dest': //FAVの削除
+        $url = 'favorites/destroy/' . $content['id'];
+        break;
+
+      case 'fav': //FAVの登録
+        $url = 'favorites/create/' . $content['id'];
+        break;
+
+      case 'follow': //フォロー
+        $url = 'friendships/create/' . $content['user_id'];
+        break;
+
+      case 'remove': //リムーブ
+        $url = 'friendships/destroy/' . $content['user_id'];
+        break;
+
+      case 'destroy': //ツイートの削除
+        $url = 'statuses/destroy';
+        $parameters = array('id' => $content['id']);
+        break;
+
+      case 'dm': //DMの送信
+        $url = 'direct_messages/new';
+        $parameters = array('text' => $content['tweet'], 'user' => $content['user']);
+        break;
+
+      case 'dm_destroy': //DMの削除
+        //そのうち実装する
+        break;
+    }
+
+    if ($parameters) {
+      $this->api->post($url, $parameters);
+    } else {
+      $this->api->OAuthRequest("https://twitter.com/{$url}.json", "POST", "");
     }
   }
 
@@ -226,7 +247,7 @@ class Twitter {
     return $this->status;
   }
 
-  //リプライ or ツイートの分別をするだけ
+  //リプライ or ツイートの分別をして、divタグのclassを返す
   public function JudgeReply($text) {
     if (strpos($text, '@' . $this->access_token['screen_name']) !== false) {
       return 'reply';
@@ -388,11 +409,12 @@ class Timer {
 
 }
 
-//ページにまつわる細々したもの
+//ページにまつわる細々したもの。
 class Page {
 
   public function __construct() {
     $data = new OAuthData();
+    //フッターやアイコンのサイズなどの設定を読み込む
     $this->config = $data->configget();
   }
 
@@ -410,7 +432,7 @@ class Page {
     return $class;
   }
 
-  //アイコンのサイズ設定に従ってアイコンのスタイルを変更する
+  //アイコンのサイズの設定に従ってアイコンのスタイルを変更する
   public function IconStyle($url, $protected) {
     if ($this->config['icon'] == 'disable') {
       if ($protected) {
@@ -652,19 +674,6 @@ class Cookie {
     } else {
       setcookie($keys, '', time() - 48000, '/');
     }
-  }
-
-  public static function getoauth() {
-    //OAuthのCookieを取得
-    //多分今は使っていない
-    $oauth = array();
-    $keys = $_COOKIE;
-    foreach ($keys as $key => $value) {
-      if (!(strpos($key, 'oauth') === false) || !(strpos($key, 'user_id') === false) || !(strpos($key, 'screen_name') === false)) {
-        $oauth[$key] = $value;
-      }
-    }
-    return $oauth;
   }
 
   public static function allclear() {
