@@ -12,6 +12,7 @@ class Config {
   const MEMCACHEDPORT = 11212;
   const KUMOFSHOST = 'localhost';
   const KUMOFSPORT = 11211;
+  const KUMOCACHE_RIMIT = 2592000;
 
 }
 

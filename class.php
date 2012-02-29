@@ -5,6 +5,8 @@ require 'config.php';
 
 class Authering {
 
+  //アカウントの認証とか
+
   public static function Redirect() {
     session_start();
     $redirect = new TwitterOAuth(Config::CONSUMER_KEY, Config::CONSUMER_SECRET);
@@ -25,7 +27,9 @@ class Authering {
     session_start();
     $callack = new TwitterOAuth(Config::CONSUMER_KEY, Config::CONSUMER_SECRET, $_SESSION['oauth_token'], $_SESSION['oauth_token_secret']);
     $access_token = $callack->getAccessToken($_REQUEST['oauth_verifier']);
+    //認証データの登録
     $oauthdata = new OAuthData();
+    //Cookieの情報がある場合（既に1つ以上の認証データがある場合）アカウントを追加する関数を呼び出す。そうでない場合は新規作成
     if (Cookie::read('individual_value')) {
       $oauthdata->accountput($access_token);
     } else {
@@ -39,6 +43,7 @@ class Authering {
     }
   }
 
+  //ログアウト。セッション、認証データ、Cookieをすべて消す。
   public static function Logout() {
     session_destroy();
     $oauthdata = new OAuthData();
@@ -58,6 +63,7 @@ class Twitter {
   public $profile;
 
   public function __construct() {
+    //認証データがなかったらエラーを返す
     $oauthdata = new OAuthData();
     if ($_COOKIE['individual_value'] && $_COOKIE['account']) {
       $this->access_token = $oauthdata->accountget();
@@ -72,47 +78,51 @@ class Twitter {
     }
   }
 
+  //ツイートなど
   public function Tweet($type, $content) {
     $this->type = $type;
     if ($type == 'tweet') {
-//ツイート
-      if ($content['id'] > 999999999999999999) {
+      //ツイート
+      if (strlen($content['id']) > 18) {
+        //in_reply_toの値がおかしかったら無視する
         $content['id'] = null;
       }
-
       $this->api->post('statuses/update', array('status' => $content['tweet'], 'in_reply_to_status_id' => $content['id']));
     } else if ($type == 'retweet') {
-//公式RT
+      //公式RT
       return $this->api->OAuthRequest("https://twitter.com/statuses/retweet/{$content['id']}.json", "POST", "");
     } else if ($type == 'fav_dest') {
-//FAVの削除
+      //FAVの削除
       $this->api->OAuthRequest("https://twitter.com/favorites/destroy/{$content['id']}.json", "POST", "");
     } else if ($type == 'fav') {
-//FAVの登録
+      //FAVの登録
       $this->api->OAuthRequest("https://twitter.com/favorites/create/{$content['id']}.json", "POST", "");
     } else if ($type == 'follow') {
-//フォロー
+      //フォロー
       $this->api->OAuthRequest("https://twitter.com/friendships/create/{$content['user_id']}.json", "POST", "");
     } else if ($type == 'remove') {
-//リムる
+      //リムる
       $this->api->OAuthRequest("https://twitter.com/friendships/destroy/{$content['user_id']}.json", "POST", "");
     } else if ($type == 'destroy') {
-//ツイートの削除
+      //ツイートの削除
       $this->api->post('statuses/destroy', array('id' => $content['id']));
     } else if ($type == 'dm') {
-//DMの送信
+      //DMの送信
       $this->api->post('direct_messages/new', array('text' => $content['tweet'], 'user' => $content['user']));
     } else if ($type == 'dm_destroy') {
-//DMの削除
-//そのうち実装する
+      //DMの削除
+      //そのうち実装する
     }
   }
 
+  //タイムラインの取得
   public function GetStatus($type, $option) {
     unset($option['tm']);
+    //何ページ目を取得するのかを指定。指定がない場合1ページ目を表示
     if (!$option['page']) {
       $option['page'] = 1;
     }
+    //1ページに表示するツイート数の設定を読み込む。読み込みが失敗したらデフォルト値を代入。
     if (!$this->config['count']) {
       $option['count'] = 10;
     } else {
@@ -120,55 +130,71 @@ class Twitter {
     }
     $this->type = $type;
     if ($type == 'mentions') {
+      //自分宛のツイートのタイムライン
       $type = 'statuses/mentions';
     } else if ($type == 'retweets_of_me') {
+      //RTされたツイートのタイムライン
       $type = 'statuses/retweets_of_me';
     } else if ($type == 'retweeted_by_me') {
+      //RTしたツイートのタイムライン
       $type = 'statuses/retweeted_by_me';
     } else if ($type == 'retweeted_to_me') {
+      //フレンドがRTしたツイートのタイムライン
       $type = 'statuses/retweeted_to_me';
     } else if ($type == 'favorites') {
-      
+      //ふぁったツイートのタイムライン
     } else if ($type == 'friends') {
+      //フォロー一覧
       if (!$option['cursor']) {
         $option['cursor'] = -1;
       }
       $type = 'statuses/friends';
     } else if ($type == 'followers') {
+      //フォロワー一覧
       if (!$option['cursor']) {
         $option['cursor'] = -1;
       }
       $type = 'statuses/followers';
     } else if ($type == 'direct_messages') {
-//そのうち実装
+      //そのうち実装
     } else if ($option['screen_name']) {
+      //ユーザのタイムライン
       $this->type = 'user_timeline';
       $this->page = $option['page'];
       $type = 'statuses/user_timeline';
     } else if ($type == 'trends') {
+      //トレンド
       $type = 'trends/23424856';
     } else if ($type == '') {
+      //ホームタイムライン
       $type = 'statuses/home_timeline';
     }
     $this->status = $this->api->get($type, $option);
-//TLが戻るやつの対処法。
     if ($option['page'] == 1 && $type != 'statuses/user_timeline' && $type != 'statuses/friends' && $type != 'statuses/followers') {
-      $this->cache = $this->m->get($this->access_token['screen_name'] . ':' . $type);
+      //タイムラインの巻き戻り防止用。1ページ目であり、ユーザのタイムライン・フレンド一覧・フォロワー一覧でない場合にだけキャッシュする。
+      $this->cache = $this->m->get($this->access_token['screen_name'] . ':' . $type); //キャッシュを取得
       if (strtotime($this->cache[0]->created_at) >= strtotime($this->status[0]->created_at)) {
+        //取得したデータよりキャッシュのほうが新しい場合はキャッシュを返す。
         return $this->cache;
       } else {
+        //キャッシュのほうが古い場合は取得したデータ返し、且つキャッシュする。
         $this->m->set($this->access_token['screen_name'] . ':' . $type, $this->status, 0, Config::CACHE_RIMIT);
         return $this->status;
       }
     } else {
+      //タイムラインの巻き戻り防止が適用できないものは取得したデータをそのまま返す
       return $this->status;
     }
   }
 
+  //検索結果の取得
   public function GetSearch($option) {
+    //何ページ目か
     if (!$option['page']) {
       $option['page'] = 1;
     }
+
+    //1ページに表示するツイート数
     if (!$this->config['count']) {
       $option['rpp'] = 10;
     } else {
@@ -178,14 +204,19 @@ class Twitter {
     return json_decode($this->api->OAuthRequest("https://search.twitter.com/search.json?q=$search", "GET", $option));
   }
 
+  //会話（in_reply_to）の表示
   public function GetTalk($status_id) {
+    //取得したツイートにin_reply_toがある限りループで取得し続ける。
     while ($status_id) {
+      //キャッシュがあったら取得する
       $this->response = $this->m->get($this->access_token['screen_name'] . ':status_id:' . $status_id);
+      //キャッシュがない場合はAPIから取得しキャッシュにセットする。
       if (!$this->response) {
         $this->response = $this->api->get('statuses/show', array('id' => $status_id));
         $this->m->set($this->access_token['screen_name'] . ':status_id:' . $status_id, $this->response, 0, Config::CACHE_RIMIT);
       }
       $this->status[] = $this->response;
+      //in_reply_toがあるかを判定
       if ($this->response->in_reply_to_status_id) {
         $status_id = $this->response->in_reply_to_status_id;
       } else {
@@ -195,8 +226,8 @@ class Twitter {
     return $this->status;
   }
 
+  //リプライ or ツイートの分別をするだけ
   public function JudgeReply($text) {
-//リプライ or ツイートの分別
     if (strpos($text, '@' . $this->access_token['screen_name']) !== false) {
       return 'reply';
     } else {
@@ -204,35 +235,38 @@ class Twitter {
     }
   }
 
+  //"1日前 返信先 | 非RT | RT | ☆ | 返信"←これ
   public function ToolBar($screen_name, $favorited, $status_id, $text, $in_reply_to_status_id) {
     $text = str_replace("\n", '\n', $text);
     $reply = ' | <a href="" onclick="add_text(\'@' . $screen_name . ' \',\'' . $status_id . '\');return false">返信</a>';
     if ($this->config['lojax'] == 'disable') {
+      //LoJAXが無効の場合
       if ($screen_name == $this->access_token['screen_name']) {
-//ツイートの削除ボタン、RT、非公式RTを実装
+        //ツイートの削除ボタン、RT、非公式RTを実装
         $destroy = ' | <a href="' . Config::ROOT_ADDRESS . 'send.php?destroy=' . $status_id . '">消</a>';
         $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | ';
       } else {
         $destroy = null;
         $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | <a href="' . Config::ROOT_ADDRESS . 'send.php?retweet=' . $status_id . '">RT</a> | ';
       }
-//ふぁぼ
+      //ふぁぼ
       if ($favorited) {
         $fav = '<a href="' . Config::ROOT_ADDRESS . 'send.php?fav_dest=' . $status_id . '">★</a>';
       } else {
         $fav = '<a href="' . Config::ROOT_ADDRESS . 'send.php?fav=' . $status_id . '">☆</a>';
       }
     } else {
+      //LoJAXが有効な場合
       $this->i++;
       if ($screen_name == $this->access_token['screen_name']) {
-//ツイートの削除ボタン、RT、非公式RTを実装
+        //ツイートの削除ボタン、RT、非公式RTを実装
         $destroy = ' | <a href="" id="destroy' . $this->i . '" onclick="makeRequest(\'' . $status_id . '\', \'' . $this->i . '\', \'destroy\');return false">消</a>';
         $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | ';
       } else {
         $destroy = null;
         $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | <a href="" id="retweet' . $this->i . '" onclick="makeRequest(\'' . $status_id . '\', \'' . $this->i . '\', \'retweet\');return false">RT</a> | ';
       }
-//ふぁぼ
+      //ふぁぼ
       if ($favorited) {
         $fav = '<a href="" id="fav_dest' . $this->i . '" onclick="makeRequest(\'' . $status_id . '\', ' . $this->i . ', \'fav_dest\');return false">★</a>';
       } else {
@@ -248,6 +282,7 @@ class Twitter {
     return $mention . $rt . $fav . $destroy . $reply;
   }
 
+  //誰がリツイートしたかを表示するだけ
   public static function Retweet($line) {
     if ($line->retweeted_status) {
       $retweeted_user = $line->user->screen_name;
@@ -259,6 +294,7 @@ class Twitter {
     return $line;
   }
 
+  //URL, ユーザ, ハッシュタグにリンクを貼る
   public static function StatusProcessing($status) {
     $status = preg_replace("/htt[ps]{1,}:\/\/t\.co\/[a-zA-Z0-9]{1,}/u", "<a target=\"_blank\" href=\"$0\">$0</a>", $status);
     $status = preg_replace("/[#＃]([a-zA-Z0-9-_一-龠あ-んア-ンーヽヾヴｦ-ﾟ々]{1,})/u", "<a href='" . Config::ROOT_ADDRESS . "search/?s=%23$1'>#$1</a>", $status);
@@ -266,26 +302,34 @@ class Twitter {
     return nl2br($status);
   }
 
+  //取得したトレンドを検索できるようにリンクを貼る
   public static function TrendsProcessing($status) {
     return '<a href="' . Config::ROOT_ADDRESS . 'search/?s=' . rawurlencode($status) . '">' . $status . '</a><br>';
   }
 
+  //投稿時刻の加工
   public function Time($time) {
     $time = time() - strtotime($time);
     if ($time < 15) {
+      //15秒以内
       $time = 'なう！';
     } else if ($time < 60) {
+      //1分以内
       $time = $time . '秒前';
-    } else if ($time < 60 * 60) {
+    } else if ($time < 3600) {
+      //1時間以内
       $time = floor($time / 60) . '分前';
-    } else if ($time < 60 * 60 * 24) {
-      $time = floor($time / 60 / 60) . '時間前';
+    } else if ($time < 86400) {
+      //1日以内
+      $time = floor($time / 3600) . '時間前';
     } else {
-      $time = floor($time / 60 / 60 / 24) . '日前';
+      //それ以上
+      $time = floor($time / 86400) . '日前';
     }
     return $time;
   }
 
+  //何人がRTしたかを表示するだけ
   public static function RetweetStatus($retweet_count, $retweeted_user) {
     if ($retweet_count) {
       $retweetstatus = $retweet_count . '人がリツイート　';
@@ -296,6 +340,7 @@ class Twitter {
     return $retweetstatus;
   }
 
+  //ユーザのプロフィールを表示する
   public function UserProfile($screen_name) {
     if ($this->type == 'user_timeline' && $this->page == 1) {
       $this->profile = $this->status[0]->user;
@@ -305,14 +350,17 @@ class Twitter {
     }
   }
 
+  //フォロー・リムーブのリンクを作成
   public function Follow($user_id, $following) {
     if ($this->config['lojax'] == 'disable') {
+      //LoJAXが無効な場合
       if ($following) {
         $results = '<a href="' . Config::ROOT_ADDRESS . 'send.php?remove=' . $user_id . '">リムーブ</a>';
       } else {
         $results = '<a href="' . Config::ROOT_ADDRESS . 'send.php?follow=' . $user_id . '">フォロー</a>';
       }
     } else {
+      //LoJAXが有効な場合
       $this->i++;
       if ($following) {
         $results = '<a href="" id="remove' . $this->i . '" onclick="makeRequest(\'' . $user_id . '\', \'' . $this->i . '\', \'remove\');return false">リムーブ</a><span id="' . $this->i . '">　</span>';
@@ -325,6 +373,7 @@ class Twitter {
 
 }
 
+//パフォーマンス計測用
 class Timer {
 
   private $time;
@@ -339,6 +388,7 @@ class Timer {
 
 }
 
+//ページにまつわる細々したもの
 class Page {
 
   public function __construct() {
@@ -346,6 +396,7 @@ class Page {
     $this->config = $data->configget();
   }
 
+  //アイコンのサイズ設定に従ってツイートの内容部分のスタイルを変更する
   public function TextStyle() {
     if ($this->config['icon'] == 'disable') {
       $class = 'textnoicon';
@@ -359,6 +410,7 @@ class Page {
     return $class;
   }
 
+  //アイコンのサイズ設定に従ってアイコンのスタイルを変更する
   public function IconStyle($url, $protected) {
     if ($this->config['icon'] == 'disable') {
       if ($protected) {
@@ -384,6 +436,7 @@ class Page {
     return '<div class="icon">' . $protected . '<img src="' . $url . '" class="' . $class . '"></div>';
   }
 
+  //ヘッダ
   public function Header() {
     $results = '<title>PSPったー</title>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -396,6 +449,7 @@ class Page {
     return $results;
   }
 
+  //メニューバー
   public static function MenuBar() {
     return '<div>
   <a href="' . Config::ROOT_ADDRESS . '">ホーム</a>
@@ -411,8 +465,9 @@ class Page {
   </div>';
   }
 
+  //ページネーション
   public static function Navi($page, $s) {
-    //ページネーション
+    //検索の場合は検索文字列の保持をする
     if ($s) {
       $s = '?s=' . urlencode($s);
     } else {
@@ -427,8 +482,8 @@ class Page {
     }
   }
 
+  //フォロー・フォロワーのページネーション。特殊なので別実装
   public static function Cursor($next, $previous) {
-    //フォロー・フォロワーのページネーション
     if ($next) {
       $next = '<a href="' . $next . '">&#62;</a>';
     } else {
@@ -444,9 +499,10 @@ class Page {
 
 }
 
-//Page()のインスタンスを作成！
+//各ページでいちいちインスタンス作成するコードを書くのが面倒なのでここで作成する
 $page = new Page();
 
+//kumofs
 class Data {
 
   public function __construct() {
@@ -454,28 +510,14 @@ class Data {
     $this->kumo->pconnect(Config::KUMOFSHOST, Config::KUMOFSPORT);
   }
 
-  //データの書き込み。成功した時のみキャッシュする。
+  //データの書き込み
   public function write($key, $value) {
-    $result = $this->kumo->set($key, serialize($value), false, 2592000);
-    if ($result) {
-      $this->cache->$key = $value;
-    }
-    return $result;
+    return $this->kumo->set($key, serialize($value), false, Config::KUMOFS_CACHE_RIMIT);
   }
 
-  //データの読み込み。まとめて取得するときはキャッシュ無効（そのうち対応する）
+  //データの読み込み
   public function read($keys) {
-    if (!is_array($keys)) {
-      if ($this->cache->$keys) {
-        $values = $this->cache->$keys;
-      } else {
-        $values = unserialize($this->kumo->get($keys));
-        $this->cache->$keys = $values;
-      }
-    } else {
-      $values = unserialize($this->kumo->get($keys));
-    }
-    return $values;
+    return unserialize($this->kumo->get($keys));
   }
 
   //データの削除
@@ -486,6 +528,7 @@ class Data {
 
 }
 
+//認証データと設定データを弄るためのクラス
 class OAuthData {
 
   public function __construct() {
@@ -554,6 +597,7 @@ class OAuthData {
 
   //初回認証時にデータを登録
   public function registdata($oauthdata) {
+    //kumofsに登録するデータの内容
     $registdata = array(
         'config' => array(
             'count' => 10,
@@ -565,7 +609,8 @@ class OAuthData {
             $oauthdata['screen_name'] => $oauthdata
         )
     );
-    $individual_value = md5($oauthdta['screen_name'] . $_SERVER['REMOTE_ADDR'] . microtime(true));
+    //individual_value=個体識別番号。この値をCookieに保存し、これをもとにkumofsからデータを読み込む。
+    $individual_value = md5($oauthdta['screen_name'] . microtime(true) . Config::HASHSTR);
     $result = $this->data->write(md5($individual_value), $registdata);
     if ($result) {
       Cookie::write(array('account' => $oauthdata['screen_name'], 'individual_value' => $individual_value));
@@ -575,6 +620,7 @@ class OAuthData {
 
 }
 
+//Cookieを弄るためのクラス
 class Cookie {
 
   public static function write($values) {
@@ -610,6 +656,7 @@ class Cookie {
 
   public static function getoauth() {
     //OAuthのCookieを取得
+    //多分今は使っていない
     $oauth = array();
     $keys = $_COOKIE;
     foreach ($keys as $key => $value) {
