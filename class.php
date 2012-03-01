@@ -91,7 +91,7 @@ class Twitter {
         $parameters = array(
             'status' => $content['tweet'],
             'in_reply_to_status_id' => $content['id']
-            );
+        );
         break;
 
       case 'retweet': //公式RT
@@ -464,6 +464,11 @@ class Page {
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
       <link href="' . Config::ROOT_ADDRESS . 'style.css" rel="stylesheet" type="text/css">
       <script src="' . Config::ROOT_ADDRESS . 'js.js" type="text/javascript"></script>';
+    //3DS用の設定。
+    if (strpos($_SERVER['HTTP_USER_AGENT'], 'Nintendo 3DS') !== false) {
+      $results .= '<meta name="viewport" content="width=320">';
+    }
+    //LoJAXを有効にしている場合、lojax.jsを読み込む
     if ($this->config['lojax'] == "enable") {
       $results = $results . '
         <script src="' . Config::ROOT_ADDRESS . 'lojax.js" type="text/javascript"></script>';
@@ -632,7 +637,7 @@ class OAuthData {
         )
     );
     //individual_value=個体識別番号。この値をCookieに保存し、これをもとにkumofsからデータを読み込む。
-    $individual_value = md5($oauthdta['screen_name'] . microtime(true) . Config::HASHSTR);
+    $individual_value = md5(mt_rand() . Config::HASHSTR);
     $result = $this->data->write(md5($individual_value), $registdata);
     if ($result) {
       Cookie::write(array('account' => $oauthdata['screen_name'], 'individual_value' => $individual_value));
