@@ -65,11 +65,9 @@ class Twitter {
   public function __construct() {
     //認証データがなかったらエラーを返す
     $oauthdata = new OAuthData();
-    if ($_COOKIE['individual_value'] && $_COOKIE['account']) {
+    if ($_COOKIE['individual_value']) {
       $this->access_token = $oauthdata->accountget();
       $this->config = $oauthdata->configget();
-    }
-    if ($this->access_token) {
       $this->api = new TwitterOAuth(Config::CONSUMER_KEY, Config::CONSUMER_SECRET, $this->access_token['oauth_token'], $this->access_token['oauth_token_secret']);
       $this->m = new Memcache();
       $this->m->pconnect(Config::MEMCACHEDHOST, Config::MEMCACHEDPORT); //Memcached接続
@@ -460,7 +458,7 @@ class Page {
 
   //ヘッダ
   public function Header() {
-    $results = '<title>PSPったー</title>
+    $results = '<title>PSPったー - psptter</title>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
       <link href="' . Config::ROOT_ADDRESS . 'style.css" rel="stylesheet" type="text/css">
       <script src="' . Config::ROOT_ADDRESS . 'js.js" type="text/javascript"></script>';
@@ -560,12 +558,20 @@ class OAuthData {
 
   public function __construct() {
     $this->data = new Data();
+    self::regularUpdate();
   }
 
   public function accountget() {
-    $account = $_COOKIE['account'];
     $individual_value = md5($_COOKIE['individual_value']);
     $oauthdata = $this->data->read($individual_value);
+    if ($_COOKIE['account']) {
+      $account = $_COOKIE['account'];
+    } else {
+      //万が一Cookieに現在のアカウントの情報がなかった場合
+      $account = array_keys($oauthdata['account']);
+      $account = $account[0];
+      Cookie::write(array('account' => $account));
+    }
     return $oauthdata['account'][$account];
   }
 
@@ -609,6 +615,7 @@ class OAuthData {
     return $result;
   }
 
+  //アカウント情報の削除
   public function accountclear($account) {
     $individual_value = md5(Cookie::read('individual_value'));
     $oauthdata = $this->data->read($individual_value);
@@ -643,6 +650,16 @@ class OAuthData {
       Cookie::write(array('account' => $oauthdata['screen_name'], 'individual_value' => $individual_value));
     }
     return $result;
+  }
+
+  //individual_valueのexpireを定期的に更新
+  public function regularUpdate() {
+    if (!$_COOKIE['update'] && $_COOKIE['individual_value']) {
+      setcookie('update', '1', time() + 259200); //3日に一度更新する
+      setcookie('individual_value', $_COOKIE['individual_value'], time() + Config::KUMOFS_CACHE_RIMIT);
+      //現在のアカウントも一応更新しておく
+      setcookie('account', $_COOKIE['account'], time() + Config::KUMOFS_CACHE_RIMIT);
+    }
   }
 
 }
