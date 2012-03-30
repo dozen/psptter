@@ -255,7 +255,7 @@ class Twitter {
   }
 
   //"1日前 返信先 | 非RT | RT | ☆ | 返信"←これ
-  public function ToolBar($screen_name, $favorited, $status_id, $text, $in_reply_to_status_id) {
+  public function ToolBar($screen_name, $favorited, $status_id, $text, $in_reply_to_status_id, $protected) {
     $text = str_replace("\n", '\n', $text);
     $reply = ' | <a href="" onclick="add_text(\'@' . $screen_name . ' \',\'' . $status_id . '\');return false">返信</a>';
     if ($this->config['lojax'] == 'disable') {
@@ -266,7 +266,10 @@ class Twitter {
         $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | ';
       } else {
         $destroy = null;
-        $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | <a href="' . Config::ROOT_ADDRESS . 'send.php?retweet=' . $status_id . '">RT</a> | ';
+        $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | ';
+        if (!$protected) {
+          $rt .= '<a href="' . Config::ROOT_ADDRESS . 'send.php?retweet=' . $status_id . '">RT</a> | ';
+        }
       }
       //ふぁぼ
       if ($favorited) {
@@ -283,7 +286,10 @@ class Twitter {
         $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | ';
       } else {
         $destroy = null;
-        $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | <a href="" id="retweet' . $this->i . '" onclick="makeRequest(\'' . $status_id . '\', \'' . $this->i . '\', \'retweet\');return false">RT</a> | ';
+        $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | ';
+        if (!$protected) {
+          $rt .= '<a href="" id="retweet' . $this->i . '" onclick="makeRequest(\'' . $status_id . '\', \'' . $this->i . '\', \'retweet\');return false">RT</a> | ';
+        }
       }
       //ふぁぼ
       if ($favorited) {
