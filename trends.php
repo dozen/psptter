@@ -27,6 +27,7 @@ $status = $twitter->GetStatus('trends');
       <?php foreach ($status[0]->trends as $line) { echo Twitter::TrendsProcessing($line->name); } ?>
     </div>
     <div id="footer">
+      <?php adsense() ?>
       <div style="text-align:right">
         <?php echo $stopwatch->Show() ?> <a href="<?php echo Config::ROOT_ADDRESS ?>?logout">logout</a>
       </div>

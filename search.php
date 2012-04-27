@@ -35,7 +35,7 @@ if ($_GET['s']) {
       ?>
       <div class="normal">
         <?php echo $page->IconStyle($line->profile_image_url, $line->protected) ?>
-        <div class="<?php echo $page->TextStyle() ?>">
+        <div class="<?php echo $page->textStyle() ?>">
           <a href="<?php echo Config::ROOT_ADDRESS . $line->from_user ?>/"><?php echo $line->from_user ?></a> <span class="small"><?php echo $line->from_user_name ?></span><br>
           <?php echo nl2br(Twitter::StatusProcessing($line->text)) ?>
         </div>
@@ -45,6 +45,7 @@ if ($_GET['s']) {
       </div>
     <?php } ?>
     <div id="footer">
+      <?php adsense() ?>
       <div style="float:left">
         <?php echo Page::Navi($_GET['page'], $_GET['s']) ?>
       </div>

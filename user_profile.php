@@ -41,17 +41,18 @@ if ($_GET['screen_name']) {
     <?php foreach ($status as $line) { ?>
       <div class="normal">
         <?php echo $page->IconStyle($line->user->profile_image_url, $line->user->protected) ?>
-        <div class="<?php echo $page->TextStyle() ?>">
+        <div class="<?php echo $page->textStyle() ?>">
           <a href="<?php echo Config::ROOT_ADDRESS . $line->user->screen_name ?>/"><?php echo $line->user->screen_name ?></a> <span class="small"><?php echo $line->user->name ?>　<?php echo $line->source ?>から</span><br>
           <?php echo Twitter::StatusProcessing($line->text) ?>
         </div>
         <div class="buttonbar">
           <span class="small"><?php echo Twitter::RetweetStatus($line->retweet_count, $line->retweeted_user) ?><?php echo $twitter->time($line->created_at) ?></span>
-          <?php echo $twitter->ToolBar($line->user->screen_name, $line->favorited, $line->id, $line->text, $line->in_reply_to_status_id) ?>
+          <?php echo $twitter->ToolBar($line->user->screen_name, $line->favorited, $line->id, $line->text, $line->in_reply_to_status_id, $line->user->protected) ?>
         </div>
       </div>
     <?php } ?>
     <div id="footer">
+      <?php adsense() ?>
       <div style="float:left">
         <?php echo Page::Navi($_GET['page'], "") ?>
       </div>

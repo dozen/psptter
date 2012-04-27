@@ -1,7 +1,7 @@
 <?php
 require 'class.php';
 $data = new OAuthData();
-$config = $data->configget();
+$config = $data->configGet();
 $accountlist = $data->accountlist();
 if (is_numeric($_POST['count'])) {
   $count = $_POST['count'];
@@ -47,7 +47,6 @@ if (isset($_POST['icon'])) {
 
 $icon_radio[$icon] = 'checked';
 
-$activeaccount = Cookie::read('account');
 if ($_POST['account']) {
   $targetaccount = $_POST['account'];
   if ($_POST['accountcontrol'] == 'delete') {
@@ -55,13 +54,13 @@ if ($_POST['account']) {
     $disableaccount = array_keys($accountlist, $targetaccount);
     unset($accountlist[$disableaccount]);
     $accountlist = array_values($accountlist);
-    if ($targetaccount == $activeaccount) {
-      $activeaccount = $accountlist[0];
-      Cookie::write(array('account' => $activeaccount));
+    if ($targetaccount == $config['current_account']) {
+      $config['current_account'] = $accountlist[0];
+      $data->configput('current_account', $config['current_account']);
     }
   } else {
-    Cookie::write(array('account' => $targetaccount));
-    $activeaccount = $targetaccount;
+    $data->configput('current_account', $targetaccount);
+    $config['current_account'] = $targetaccount;
   }
 }
 ?>
@@ -101,12 +100,13 @@ if ($_POST['account']) {
         <p>
           <select name="account">
             <?php foreach ($accountlist as $account) { ?>
-              <?php if ($account == $activeaccount) { ?>
+              <?php if ($account == $config['current_account']) { ?>
                 <option value="<?php echo $account ?>" selected><?php echo $account ?></option>
               <?php } else { ?>
                 <option value="<?php echo $account ?>"><?php echo $account ?></option>
               <?php }
-            } ?>
+            }
+            ?>
           </select>
           <input type="checkbox" name="accountcontrol" value="delete">削除
           <a href="<?php echo Config::ROOT_ADDRESS ?>?redirect">アカウントの追加</a>
@@ -121,5 +121,6 @@ if ($_POST['account']) {
       </form>
       ※時間がかかります＞＜；
     </div>
+    <?php adsense() ?>
   </body>
 </html>

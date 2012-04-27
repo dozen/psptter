@@ -47,7 +47,7 @@ if (isset($_GET['debug'])) {
     <?php foreach ($status->users as $line) { ?>
       <div class="normal">
         <?php echo $page->IconStyle($line->profile_image_url, $line->protected) ?>
-        <div class="<?php echo $page->TextStyle() ?>">
+        <div class="<?php echo $page->textStyle() ?>">
           <a href="<?php echo Config::ROOT_ADDRESS . $line->screen_name ?>/"><?php echo $line->screen_name ?></a> <span class="small"><?php echo $line->name ?></span> <?php echo $twitter->Follow($line->id, $line->following) ?><br>
           <?php echo Twitter::StatusProcessing($line->description) ?>
         </div>
@@ -55,8 +55,13 @@ if (isset($_GET['debug'])) {
       </div>
     <?php } ?>
     <div id="footer">
+      <?php adsense() ?>
+      <div style="float:left">
       <?php echo Page::Cursor($status->next_cursor, $status->previous_cursor) ?><br>
-      <?php echo $stopwatch->Show() ?>
+      </div>
+      <div style="text-align:right">
+        <?php echo $stopwatch->Show() ?>
+      </div>
     </div>
   </body>
 </html>

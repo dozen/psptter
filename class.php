@@ -26,14 +26,14 @@ class Authering {
   public static function Callback() {
     session_start();
     $callack = new TwitterOAuth(Config::CONSUMER_KEY, Config::CONSUMER_SECRET, $_SESSION['oauth_token'], $_SESSION['oauth_token_secret']);
-    $access_token = $callack->getAccessToken($_REQUEST['oauth_verifier']);
+    $accessToken = $callack->getAccessToken($_REQUEST['oauth_verifier']);
     //認証データの登録
-    $oauthdata = new OAuthData();
+    $oauthData = new OAuthData();
     //Cookieの情報がある場合（既に1つ以上の認証データがある場合）アカウントを追加する関数を呼び出す。そうでない場合は新規作成
     if (Cookie::read('individual_value')) {
-      $oauthdata->accountput($access_token);
+      $oauthData->accountput($accessToken);
     } else {
-      $oauthdata->registdata($access_token);
+      $oauthData->registdata($accessToken);
     }
     if ($callack->http_code == 200) {
       header('location: ./');
@@ -46,8 +46,8 @@ class Authering {
   //ログアウト。セッション、認証データ、Cookieをすべて消す。
   public static function Logout() {
     session_destroy();
-    $oauthdata = new OAuthData();
-    $oauthdata->allclear();
+    $oauthData = new OAuthData();
+    $oauthData->allclear();
     Cookie::allclear();
     header('Location: ./');
   }
@@ -56,7 +56,7 @@ class Authering {
 
 class Twitter {
 
-  public $access_token;
+  public $accessToken;
   public $api;
   public $status;
   public $cache;
@@ -64,10 +64,15 @@ class Twitter {
 
   public function __construct() {
     //認証データがなかったらエラーを返す
-    $oauthdata = new OAuthData();
+    $oauthData = new OAuthData();
     if ($_COOKIE['individual_value']) {
-      $this->access_token = $oauthdata->accountget();
-      $this->config = $oauthdata->configget();
+      //移行が完了したらここを消す
+      if ($_COOKIE['account']) {
+        $oauthData->configput('current_account', $_COOKIE['account']);
+        Cookie::clear('account');
+      }
+      $this->access_token = $oauthData->accountget();
+      $this->config = $oauthData->configGet();
       $this->api = new TwitterOAuth(Config::CONSUMER_KEY, Config::CONSUMER_SECRET, $this->access_token['oauth_token'], $this->access_token['oauth_token_secret']);
       $this->m = new Memcache();
       $this->m->pconnect(Config::MEMCACHEDHOST, Config::MEMCACHEDPORT); //Memcached接続
@@ -255,7 +260,7 @@ class Twitter {
   }
 
   //"1日前 返信先 | 非RT | RT | ☆ | 返信"←これ
-  public function ToolBar($screen_name, $favorited, $status_id, $text, $in_reply_to_status_id) {
+  public function ToolBar($screen_name, $favorited, $status_id, $text, $in_reply_to_status_id, $protected) {
     $text = str_replace("\n", '\n', $text);
     $reply = ' | <a href="" onclick="add_text(\'@' . $screen_name . ' \',\'' . $status_id . '\');return false">返信</a>';
     if ($this->config['lojax'] == 'disable') {
@@ -266,7 +271,10 @@ class Twitter {
         $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | ';
       } else {
         $destroy = null;
-        $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | <a href="' . Config::ROOT_ADDRESS . 'send.php?retweet=' . $status_id . '">RT</a> | ';
+        $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | ';
+        if (!$protected) {
+          $rt .= '<a href="' . Config::ROOT_ADDRESS . 'send.php?retweet=' . $status_id . '">RT</a> | ';
+        }
       }
       //ふぁぼ
       if ($favorited) {
@@ -283,7 +291,10 @@ class Twitter {
         $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | ';
       } else {
         $destroy = null;
-        $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | <a href="" id="retweet' . $this->i . '" onclick="makeRequest(\'' . $status_id . '\', \'' . $this->i . '\', \'retweet\');return false">RT</a> | ';
+        $rt = '<a href="" onclick="add_text(\'' . htmlspecialchars(' RT @' . $screen_name . ': ' . $text, ENT_QUOTES) . '\');return false">非RT</a> | ';
+        if (!$protected) {
+          $rt .= '<a href="" id="retweet' . $this->i . '" onclick="makeRequest(\'' . $status_id . '\', \'' . $this->i . '\', \'retweet\');return false">RT</a> | ';
+        }
       }
       //ふぁぼ
       if ($favorited) {
@@ -413,11 +424,11 @@ class Page {
   public function __construct() {
     $data = new OAuthData();
     //フッターやアイコンのサイズなどの設定を読み込む
-    $this->config = $data->configget();
+    $this->config = $data->configGet();
   }
 
   //アイコンのサイズ設定に従ってツイートの内容部分のスタイルを変更する
-  public function TextStyle() {
+  public function textStyle() {
     if ($this->config['icon'] == 'disable') {
       $class = 'textnoicon';
     } else if ($this->config['icon'] == 'middle') {
@@ -487,11 +498,13 @@ class Page {
   <a href="' . Config::ROOT_ADDRESS . 'trends/">トレンド</a>
   <a href="' . Config::ROOT_ADDRESS . 'setting/">設定</a>
   <a href="' . Config::ROOT_ADDRESS . 'help.html">HELP</a>
+  <a href="http://psptter.dip.jp/psptter/">info</a>
   </div>';
   }
 
   //ページネーション
   public static function Navi($page, $s) {
+
     //検索の場合は検索文字列の保持をする
     if ($s) {
       $s = '?s=' . urlencode($s);
@@ -558,70 +571,61 @@ class OAuthData {
 
   public function __construct() {
     $this->data = new Data();
-    self::regularUpdate();
+    $this->regularUpdate();
   }
 
+  //アカウントの情報を取得する
   public function accountget() {
-    $individual_value = md5($_COOKIE['individual_value']);
-    $oauthdata = $this->data->read($individual_value);
-    if ($_COOKIE['account']) {
-      $account = $_COOKIE['account'];
-    } else {
-      //万が一Cookieに現在のアカウントの情報がなかった場合
-      $account = array_keys($oauthdata['account']);
-      $account = $account[0];
-      Cookie::write(array('account' => $account));
-    }
-    return $oauthdata['account'][$account];
+    $individualValue = md5($_COOKIE['individual_value']);
+    $oauthData = $this->data->read($individualValue);
+    $account = $oauthData['config']['current_account'];
+    return $oauthData['account'][$account];
   }
 
   //設定の読み込み
-  public function configget() {
-    $individual_value = md5($_COOKIE['individual_value']);
-    $oauthdata = $this->data->read($individual_value);
-    return $oauthdata['config'];
+  public function configGet() {
+    $individualValue = md5($_COOKIE['individual_value']);
+    $oauthData = $this->data->read($individualValue);
+    return $oauthData['config'];
   }
 
   //アカウント一覧
   public function accountlist() {
-    $individual_value = md5($_COOKIE['individual_value']);
-    $accountlist = $this->data->read($individual_value);
+    $individualValue = md5($_COOKIE['individual_value']);
+    $accountlist = $this->data->read($individualValue);
     return array_keys($accountlist['account']);
   }
 
   //設定の書き込み
   public function configput($key, $value) {
-    $individual_value = md5($_COOKIE['individual_value']);
-    $data = $this->data->read($individual_value);
+    $individualValue = md5($_COOKIE['individual_value']);
+    $data = $this->data->read($individualValue);
     $data['config'][$key] = $value;
-    $result = $this->data->write($individual_value, $data);
+    $result = $this->data->write($individualValue, $data);
     return $result;
   }
-
+  
   //アカウント追加
-  public function accountput($accsess_token) {
-    $account = $accsess_token['screen_name'];
-    $individual_value = md5(Cookie::read('individual_value'));
-    $cachedata = $this->data->read($individual_value);
-    if ($cachedata) {
-      $cachedata['account'][$account] = $accsess_token;
+  public function accountput($accsessToken) {
+    $account = $accsessToken['screen_name'];
+    $individualValue = md5(Cookie::read('individual_value'));
+    $data = $this->data->read($individualValue);
+    if ($data) {
+      $data['account'][$account] = $accsessToken;
+      $this->configput('current_account', $account);
     } else {
-      return $this->registdata($access_token);
+      return $this->registdata($accsessToken);
     }
-    $result = $this->data->write($individual_value, $cachedata);
-    if ($result) {
-      Cookie::write(array('account' => $account));
-    }
-    return $result;
+    return $this->data->write($individualValue, $data);
   }
 
   //アカウント情報の削除
   public function accountclear($account) {
-    $individual_value = md5(Cookie::read('individual_value'));
-    $oauthdata = $this->data->read($individual_value);
-    if (count($oauthdata['account']) > 1) {
-      unset($oauthdata['account'][$account]);
-      $this->data->write($individual_value, $oauthdata);
+    $individualValue = md5(Cookie::read('individual_value'));
+    $oauthData = $this->data->read($individualValue);
+    if (count($oauthData['account']) > 1) {
+      unset($oauthData['account'][$account]);
+      $this->data->write($individualValue, $oauthData);
     }
   }
 
@@ -630,41 +634,43 @@ class OAuthData {
   }
 
   //初回認証時にデータを登録
-  public function registdata($oauthdata) {
+  public function registdata($oauthData) {
     //kumofsに登録するデータの内容
     $registdata = array(
         'config' => array(
             'count' => 10,
             'footer' => '',
             'icon' => 'normal',
-            'lojax' => 'disable'
+            'lojax' => 'disable',
+            'current_account' => $oauthData['screen_name']
         ),
         'account' => array(
-            $oauthdata['screen_name'] => $oauthdata
-        )
+            $oauthData['screen_name'] => $oauthData
+        ),
     );
     //individual_value=個体識別番号。この値をCookieに保存し、これをもとにkumofsからデータを読み込む。
-    $individual_value = md5(mt_rand() . Config::HASHSTR);
-    $result = $this->data->write(md5($individual_value), $registdata);
+    $individualValue = md5(mt_rand() . Config::HASHSTR);
+    $result = $this->data->write(md5($individualValue), $registdata);
     if ($result) {
-      Cookie::write(array('account' => $oauthdata['screen_name'], 'individual_value' => $individual_value));
+      Cookie::write(array('individual_value' => $individualValue));
     }
     return $result;
   }
 
-  //individual_valueのexpireを定期的に更新
+  //Cookieとkumofs上のデータの寿命を定期的に更新
   public function regularUpdate() {
     if (!$_COOKIE['update'] && $_COOKIE['individual_value']) {
       setcookie('update', '1', time() + 259200); //3日に一度更新する
       setcookie('individual_value', $_COOKIE['individual_value'], time() + Config::KUMOFS_CACHE_RIMIT);
-      //現在のアカウントも一応更新しておく
-      setcookie('account', $_COOKIE['account'], time() + Config::KUMOFS_CACHE_RIMIT);
+      $individualValue = md5(Cookie::read('individual_value'));
+      $oauthData = $this->data->read($individualValue);
+      $this->data->write($individualValue, $oauthData);
     }
   }
 
 }
 
-//Cookieを弄るためのクラス
+//Cookieを弄るためのクラス（不要？）
 class Cookie {
 
   public static function write($values) {
@@ -745,4 +751,19 @@ function aa($object) {
 header('Content-type: text/html; charset=UTF-8');
 header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
 header('Pragma: no-cache');
+
+//これがディスられまくってるアドセンス
+require_once 'adsense.php';
+
+//簡易アクセスカウンター
+function counter() {
+  $counter = new Memcached();
+  $counter->addServer('localhost', 11212);
+  $key = 'psptter_counter:' . date('m/d');
+  if (!$counter->increment($key, 1)) {
+    $counter->set($key, 1, 2592000);
+  }
+}
+
+counter();
 ?>
