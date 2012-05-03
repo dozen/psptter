@@ -71,7 +71,10 @@ class Twitter {
         $oauthData->configput('current_account', $_COOKIE['account']);
         Cookie::clear('account');
       }
-      $this->access_token = $oauthData->accountget();
+      if (!$this->access_token = $oauthData->accountget()){
+        Cookie::allclear();
+        throw new Exception('Please Login');
+      }
       $this->config = $oauthData->configGet();
       $this->api = new TwitterOAuth(Config::CONSUMER_KEY, Config::CONSUMER_SECRET, $this->access_token['oauth_token'], $this->access_token['oauth_token_secret']);
       $this->m = new Memcache();
