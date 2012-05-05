@@ -652,7 +652,7 @@ class OAuthData {
         ),
     );
     //individual_value=個体識別番号。この値をCookieに保存し、これをもとにkumofsからデータを読み込む。
-    $individualValue = md5(mt_rand() . Config::HASHSTR);
+    $individualValue = md5(microtime(true) . mt_rand() . Config::HASHSTR);
     $result = $this->data->write(md5($individualValue), $registdata);
     if ($result) {
       Cookie::write(array('individual_value' => $individualValue));
