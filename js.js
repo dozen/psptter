@@ -1,7 +1,7 @@
 function add_text(str,ids){
   var tweet = document.getElementsByName("tweet")[0];
   var id = document.getElementsByName("id")[0];
-  tweet.value += str;
+  tweet.value += decodeURIComponent(str);
   id.value += ids;
 }
 
@@ -13,9 +13,4 @@ function strCount(){
     x = x + '\u6587\u5b57';
   }
   document.getElementById("strcount").innerHTML = x;
-}
-
-//これ何か忘れた(；´∀｀) おそらくLojax？
-String.prototype.replaceAll = function (org, dest){
-  return this.split(org).join(dest);
 }

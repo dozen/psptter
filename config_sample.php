@@ -7,7 +7,7 @@ class Config {
   const OAUTH_CALLBACK = 'http://psptter.dip.jp/?callback';
   const ROOT_ADDRESS = 'http://psptter.dip.jp/'; //lojax.jsの8行目のactionも一緒に変更すること
   const CACHE_RIMIT = 600; //Memcachedのexpireを指定
-  const HASHSTR = 'hogehoge'; //個体識別番号を作るときとかに利用。
+  const SALT = 'hogehoge'; //個体識別番号を作るときとかに利用。
   const MEMCACHEDHOST = 'localhost';
   const MEMCACHEDPORT = 11212;
   const KUMOFSHOST = 'localhost';
