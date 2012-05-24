@@ -1,8 +1,6 @@
 function add_text(str,ids){
-  var tweet = document.getElementsByName("tweet")[0];
-  var id = document.getElementsByName("id")[0];
-  tweet.value += decodeURIComponent(str);
-  id.value += ids;
+  document.getElementsByName("tweet")[0].value += decodeURIComponent(str);
+  document.getElementsByName("id")[0].value += ids;
 }
 
 function strCount(){
