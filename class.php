@@ -595,6 +595,7 @@ class OAuthData {
     public function accountlist() {
         $individualValue = md5($_COOKIE['individual_value']);
         $accountlist = $this->data->read($individualValue);
+        $this->dealDustData($individualValue, $accountlist);
         return array_keys($accountlist['account']);
     }
 
@@ -605,6 +606,15 @@ class OAuthData {
         $data['config'][$key] = $value;
         $result = $this->data->write($individualValue, $data);
         return $result;
+    }
+    
+    public function dealDustData() {
+        $individualValue = md5(Cookie::read('individual_value'));
+        $data = $this->data->read($individualValue);
+        if (isset($data['account'][''])) {
+            unset($data['account']['']);
+            $this->data->write($individualValue, $data);
+        }
     }
 
     //アカウント追加
@@ -757,15 +767,4 @@ header('Pragma: no-cache');
 //これがディスられまくってるアドセンス
 require_once 'adsense.php';
 
-//簡易アクセスカウンター
-function counter() {
-    $counter = new Memcached();
-    $counter->addServer('localhost', 11212);
-    $key = 'psptter_counter:' . date('m/d');
-    if (!$counter->increment($key, 1)) {
-        $counter->set($key, 1, 2592000);
-    }
-}
-
-counter();
 ?>

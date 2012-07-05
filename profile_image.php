@@ -43,7 +43,7 @@ if ($_FILES['image']) {
       'oauth_consumer_key' => $consumer_key,
       'oauth_signature_method' => 'HMAC-SHA1',
       'oauth_timestamp' => time(),
-      'oauth_nonce' => md5(Config::HASHSTR . microtime() . mt_rand()),
+      'oauth_nonce' => md5(Config::SALT . microtime() . mt_rand()),
       'oauth_version' => '1.0a',
       'oauth_token' => $oauth_token,
   );
