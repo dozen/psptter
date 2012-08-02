@@ -137,8 +137,10 @@ class Twitter {
 
         if ($parameters) {
             $this->api->post($url, $parameters);
+            httpStatus($this->api);
         } else {
             $this->api->OAuthRequest("https://twitter.com/{$url}.json", "POST", "");
+            httpStatus($this->api);
         }
     }
 
@@ -184,6 +186,13 @@ class Twitter {
             $type = 'statuses/followers';
         } else if ($type == 'direct_messages') {
             //そのうち実装
+        } else if ($type == 'lists') {
+            $type = 'lists/all';
+        } else if ($type == 'list') {
+            $type = 'lists/statuses';
+            if (!$option['page']) {
+                $option['page'] = 1;
+            }
         } else if ($option['screen_name']) {
             //ユーザのタイムライン
             $this->type = 'user_timeline';
@@ -197,7 +206,10 @@ class Twitter {
             $type = 'statuses/home_timeline';
         }
         $this->status = $this->api->get($type, $option);
-        if ($option['page'] == 1 && $type != 'statuses/user_timeline' && $type != 'statuses/friends' && $type != 'statuses/followers') {
+        httpStatus($this->api);
+        $httpStatus = httpStatus();
+        if ($httpStatus->http_code == 200) {
+        if ($option['page'] == 1 && $type != 'statuses/user_timeline' && $type != 'statuses/friends' && $type != 'statuses/followers' && $type != 'lists/all' && $type != 'lists/statuses') {
             //タイムラインの巻き戻り防止用。1ページ目であり、ユーザのタイムライン・フレンド一覧・フォロワー一覧でない場合にだけキャッシュする。
             $this->cache = $this->m->get($this->access_token['screen_name'] . ':' . $type); //キャッシュを取得
             if (strtotime($this->cache[0]->created_at) >= strtotime($this->status[0]->created_at)) {
@@ -211,6 +223,9 @@ class Twitter {
         } else {
             //タイムラインの巻き戻り防止が適用できないものは取得したデータをそのまま返す
             return $this->status;
+        }
+        } else {
+            return false;
         }
     }
 
@@ -228,7 +243,9 @@ class Twitter {
             $option['rpp'] = $this->config['count'];
         }
         $search = urlencode($option['s']);
-        return json_decode($this->api->OAuthRequest("https://search.twitter.com/search.json?q=$search", "GET", $option));
+        $result = $this->api->OAuthRequest("https://search.twitter.com/search.json?q=$search", "GET", $option);
+        httpStatus($this->api);
+        return json_decode($result);
     }
 
     //会話（in_reply_to）の表示
@@ -247,6 +264,7 @@ class Twitter {
             if ($this->response->in_reply_to_status_id) {
                 $status_id = $this->response->in_reply_to_status_id;
             } else {
+                httpStatus($this->api);
                 unset($status_id);
             }
         }
@@ -405,6 +423,17 @@ class Twitter {
 
 }
 
+function httpStatus($status = false) {
+    static $cache;
+    if (!isset($cache) && $status) {
+        $cache->http_code = $status->http_code;
+        $cache->rateLimit = (object) array('limit' => $status->http_header['x_ratelimit_limit'], 'remaining' => $status->http_header['x_ratelimit_remaining'], 'reset' => $status->http_header['x_ratelimit_reset']);
+    } else if (!isset($cache)) {
+        return false;
+    }
+    return $cache;
+}
+
 //パフォーマンス計測用
 class Timer {
 
@@ -497,10 +526,10 @@ class Page {
   <a href="' . Config::ROOT_ADDRESS . 'retweeted_to_me/">みんなのRT</a>
   <a href="' . Config::ROOT_ADDRESS . 'favorites/">ふぁぼ</a>
   <a href="' . Config::ROOT_ADDRESS . 'search/">検索</a>
+  <a href="' . Config::ROOT_ADDRESS . 'lists/">リスト</a>
   <a href="' . Config::ROOT_ADDRESS . 'trends/">トレンド</a>
   <a href="' . Config::ROOT_ADDRESS . 'setting/">設定</a>
   <a href="' . Config::ROOT_ADDRESS . 'help.html">HELP</a>
-  <a href="http://psptter.dip.jp/psptter/">info</a>
   </div>';
     }
 
@@ -535,6 +564,13 @@ class Page {
             $previous = '&#60;';
         }
         return $previous . ' | ' . $next;
+    }
+
+    public static function showStatus($status) {
+        $status = httpStatus();
+        if ($status) {
+            echo 'API:' . $status->rateLimit->remaining . '/' . $status->rateLimit->limit;
+        }
     }
 
 }
@@ -607,7 +643,7 @@ class OAuthData {
         $result = $this->data->write($individualValue, $data);
         return $result;
     }
-    
+
     public function dealDustData() {
         $individualValue = md5(Cookie::read('individual_value'));
         $data = $this->data->read($individualValue);
@@ -764,7 +800,30 @@ header('Content-type: text/html; charset=UTF-8');
 header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
 header('Pragma: no-cache');
 
-//これがディスられまくってるアドセンス
-require_once 'adsense.php';
+//Google Analytics
+$GA_ACCOUNT = "MO-2287701-11";
+$GA_PIXEL = "http://psptter.dip.jp/ga.php";
 
+function googleAnalyticsGetImageUrl() {
+    global $GA_ACCOUNT, $GA_PIXEL;
+    $url = "";
+    $url .= $GA_PIXEL . "?";
+    $url .= "utmac=" . $GA_ACCOUNT;
+    $url .= "&utmn=" . rand(0, 0x7fffffff);
+    $referer = $_SERVER["HTTP_REFERER"];
+    $query = $_SERVER["QUERY_STRING"];
+    $path = $_SERVER["REQUEST_URI"];
+    if (empty($referer)) {
+        $referer = "-";
+    }
+    $url .= "&utmr=" . urlencode($referer);
+    if (!empty($path)) {
+        $url .= "&utmp=" . urlencode($path);
+    }
+    $url .= "&guid=ON";
+    return str_replace("&", "&amp;", $url);
+}
+
+//アドセンス
+require_once 'adsense.php';
 ?>
