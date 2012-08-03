@@ -209,21 +209,21 @@ class Twitter {
         httpStatus($this->api);
         $httpStatus = httpStatus();
         if ($httpStatus->http_code == 200) {
-        if ($option['page'] == 1 && $type != 'statuses/user_timeline' && $type != 'statuses/friends' && $type != 'statuses/followers' && $type != 'lists/all' && $type != 'lists/statuses') {
-            //タイムラインの巻き戻り防止用。1ページ目であり、ユーザのタイムライン・フレンド一覧・フォロワー一覧でない場合にだけキャッシュする。
-            $this->cache = $this->m->get($this->access_token['screen_name'] . ':' . $type); //キャッシュを取得
-            if (strtotime($this->cache[0]->created_at) >= strtotime($this->status[0]->created_at)) {
-                //取得したデータよりキャッシュのほうが新しい場合はキャッシュを返す。
-                return $this->cache;
+            if ($option['page'] == 1 && $type != 'statuses/user_timeline' && $type != 'statuses/friends' && $type != 'statuses/followers' && $type != 'lists/all' && $type != 'lists/statuses') {
+                //タイムラインの巻き戻り防止用。1ページ目であり、ユーザのタイムライン・フレンド一覧・フォロワー一覧でない場合にだけキャッシュする。
+                $this->cache = $this->m->get($this->access_token['screen_name'] . ':' . $type); //キャッシュを取得
+                if (strtotime($this->cache[0]->created_at) >= strtotime($this->status[0]->created_at)) {
+                    //取得したデータよりキャッシュのほうが新しい場合はキャッシュを返す。
+                    return $this->cache;
+                } else {
+                    //キャッシュのほうが古い場合は取得したデータ返し、且つキャッシュする。
+                    $this->m->set($this->access_token['screen_name'] . ':' . $type, $this->status, 0, Config::CACHE_RIMIT);
+                    return $this->status;
+                }
             } else {
-                //キャッシュのほうが古い場合は取得したデータ返し、且つキャッシュする。
-                $this->m->set($this->access_token['screen_name'] . ':' . $type, $this->status, 0, Config::CACHE_RIMIT);
+                //タイムラインの巻き戻り防止が適用できないものは取得したデータをそのまま返す
                 return $this->status;
             }
-        } else {
-            //タイムラインの巻き戻り防止が適用できないものは取得したデータをそのまま返す
-            return $this->status;
-        }
         } else {
             return false;
         }
@@ -284,14 +284,13 @@ class Twitter {
     public function ToolBar($screen_name, $favorited, $status_id, $text, $in_reply_to_status_id, $protected) {
         $reply = ' | <a href="" onclick="add_text(\'@' . $screen_name . ' \',\'' . $status_id . '\');return false">返信</a>';
         if ($this->config['lojax'] == 'disable') {
+            $rt = '<a href="" onclick="add_text(\'' . rawurlencode(' RT @' . $screen_name . ': ' . htmlspecialchars_decode($text)) . '\');return false">非RT</a> | ';
             //LoJAXが無効の場合
             if ($screen_name == $this->access_token['screen_name']) {
                 //ツイートの削除ボタン、RT、非公式RTを実装
                 $destroy = ' | <a href="' . Config::ROOT_ADDRESS . 'send.php?destroy=' . $status_id . '">消</a>';
-                $rt = '<a href="" onclick="add_text(\'' . rawurlencode(' RT @' . $screen_name . ': ' . htmlspecialchars_decode()) . '\');return false">非RT</a> | ';
             } else {
                 $destroy = null;
-                $rt = '<a href="" onclick="add_text(\'' . rawurlencode(' RT @' . $screen_name . ': ' . htmlspecialchars_decode($text)) . '\');return false">非RT</a> | ';
                 if (!$protected) {
                     $rt .= '<a href="' . Config::ROOT_ADDRESS . 'send.php?retweet=' . $status_id . '">RT</a> | ';
                 }
@@ -566,7 +565,7 @@ class Page {
         return $previous . ' | ' . $next;
     }
 
-    public static function showStatus($status) {
+    public static function showStatus() {
         $status = httpStatus();
         if ($status) {
             echo 'API:' . $status->rateLimit->remaining . '/' . $status->rateLimit->limit;

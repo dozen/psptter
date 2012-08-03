@@ -321,9 +321,9 @@ header('Pragma: no-cache');
     $attrs = ($expose ? 'rows="10" cols="30"' : 'rows="1" cols="1" disabled="disabled"');
     $type = ($expose ? 'type="text"' : 'type="hidden"');
     $html = '<form action="" id="lojax_sender"><fieldset>'
-            . '<textarea id="lojax_response" ' . $attrs . '>' . (isset($output) ? htmlentities($output) : '') . '</textarea>'
-            . '<textarea id="lojax_headers" ' . $attrs . '>' . (isset($headers) ? htmlentities($headers) : '') . '</textarea>'
-            . '<input id="lojax_status" ' . $type . ' value="' . (isset($status) ? htmlentities($status) : '') . '" />'
+            . '<textarea id="lojax_response" ' . $attrs . '>' . (isset($output) ? htmlspecialchars($output, ENT_QUOTES, 'UTF-8') : '') . '</textarea>'
+            . '<textarea id="lojax_headers" ' . $attrs . '>' . (isset($headers) ? htmlspecialchars($headers, ENT_QUOTES, 'UTF-8') : '') . '</textarea>'
+            . '<input id="lojax_status" ' . $type . ' value="' . (isset($status) ? htmlspecialchars($status, ENT_QUOTES, 'UTF-8') : '') . '" />'
             . '</fieldset></form>';
 
 //output the form
