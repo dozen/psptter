@@ -62,7 +62,7 @@ if ($_GET['screen_name']) {
                 <?php echo Page::Navi($_GET['page'], "") ?>
             </div>
             <div style="text-align:right">
-                <?php echo $stopwatch->Show() ?> <a href="<?php echo Config::ROOT_ADDRESS ?>?logout">logout</a>
+                <?php echo page::showStatus(); ?> <?php echo $stopwatch->Show() ?> <a href="<?php echo Config::ROOT_ADDRESS ?>?logout">logout</a>
             </div>
         </div>
         <?php $googleAnalyticsImageUrl = googleAnalyticsGetImageUrl();

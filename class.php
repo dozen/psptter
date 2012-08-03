@@ -346,8 +346,8 @@ class Twitter {
     //URL, ユーザ, ハッシュタグにリンクを貼る
     public static function StatusProcessing($status) {
         $status = preg_replace("/htt[ps]{1,}:\/\/t\.co\/[a-zA-Z0-9]{1,}/u", "<a target=\"_blank\" href=\"$0\">$0</a>", $status);
-        $status = preg_replace("/[#＃]([a-zA-Z0-9-_一-龠あ-んア-ンーヽヾヴｦ-ﾟ々]{1,})/u", "<a href='" . Config::ROOT_ADDRESS . "search/?s=%23$1'>#$1</a>", $status);
-        $status = preg_replace("/@([a-zA-Z0-9-_]{1,})/", "<a href='" . Config::ROOT_ADDRESS . "$1/'>@$1</a>", $status);
+        $status = preg_replace("/[#＃]([a-zA-Z0-9-_一-龠ぁゕゖ-ゞゔア-ンーヽヾヴｦ-ﾟ々]{1,})/u", "<a href='" . Config::ROOT_ADDRESS . "search/?s=%23$1'>#$1</a>", $status);
+        $status = preg_replace("/@([a-zA-Z0-9-_]{1,})/u", "<a href='" . Config::ROOT_ADDRESS . "$1/'>@$1</a>", $status);
         return nl2br($status);
     }
 
@@ -567,7 +567,7 @@ class Page {
 
     public static function showStatus() {
         $status = httpStatus();
-        if ($status) {
+        if ($status->rateLimit) {
             echo 'API:' . $status->rateLimit->remaining . '/' . $status->rateLimit->limit;
         }
     }
