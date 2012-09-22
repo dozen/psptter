@@ -59,20 +59,15 @@ class Twitter {
     public $accessToken;
     public $api;
     public $status;
-    public $cache;
     public $profile;
 
     public function __construct() {
         //認証データがなかったらエラーを返す
         $oauthData = new OAuthData();
         if ($_COOKIE['individual_value']) {
-            //移行が完了したらここを消す
-            if ($_COOKIE['account']) {
-                $oauthData->configput('current_account', $_COOKIE['account']);
-                Cookie::clear('account');
-            }
-            if (!$this->access_token = $oauthData->accountget()) {
-                Cookie::allclear();
+            $this->access_token = $oauthData->accountget();
+            if (!$this->access_token) {
+                //Cookie::allclear();
                 throw new Exception('Please Login');
             }
             $this->config = $oauthData->configGet();
@@ -89,8 +84,8 @@ class Twitter {
         $this->type = $type;
         switch ($type) {
             case 'tweet':
+                //in_reply_toの値がおかしかったら無視する
                 if (strlen($content['id']) > 18) {
-                    //in_reply_toの値がおかしかったら無視する
                     $content['id'] = null;
                 }
                 $url = 'statuses/update';
@@ -145,10 +140,13 @@ class Twitter {
     }
 
     //タイムラインの取得
-    public function GetStatus($type, $option) {
+    public function GetStatus($type = false, $option = null) {
         unset($option['tm']);
         //何ページ目を取得するのかを指定。指定がない場合1ページ目を表示
         if (!$option['page']) {
+            $option['page'] = 1;
+        }
+        if (isset($option['page']) && !$option['page']) {
             $option['page'] = 1;
         }
         //1ページに表示するツイート数の設定を読み込む。読み込みが失敗したらデフォルト値を代入。
@@ -185,14 +183,11 @@ class Twitter {
             }
             $type = 'statuses/followers';
         } else if ($type == 'direct_messages') {
-            //そのうち実装
+            
         } else if ($type == 'lists') {
             $type = 'lists/all';
         } else if ($type == 'list') {
             $type = 'lists/statuses';
-            if (!$option['page']) {
-                $option['page'] = 1;
-            }
         } else if ($option['screen_name']) {
             //ユーザのタイムライン
             $this->type = 'user_timeline';
@@ -201,7 +196,7 @@ class Twitter {
         } else if ($type == 'trends') {
             //トレンド
             $type = 'trends/23424856';
-        } else if ($type == '') {
+        } else if ($type == false) {
             //ホームタイムライン
             $type = 'statuses/home_timeline';
         }
@@ -209,12 +204,12 @@ class Twitter {
         httpStatus($this->api);
         $httpStatus = httpStatus();
         if ($httpStatus->http_code == 200) {
+            //タイムラインの巻き戻り防止用。1ページ目であり、ユーザのタイムライン・フレンド一覧・フォロワー一覧でない場合にだけキャッシュする。
             if ($option['page'] == 1 && $type != 'statuses/user_timeline' && $type != 'statuses/friends' && $type != 'statuses/followers' && $type != 'lists/all' && $type != 'lists/statuses') {
-                //タイムラインの巻き戻り防止用。1ページ目であり、ユーザのタイムライン・フレンド一覧・フォロワー一覧でない場合にだけキャッシュする。
-                $this->cache = $this->m->get($this->access_token['screen_name'] . ':' . $type); //キャッシュを取得
-                if (strtotime($this->cache[0]->created_at) >= strtotime($this->status[0]->created_at)) {
-                    //取得したデータよりキャッシュのほうが新しい場合はキャッシュを返す。
-                    return $this->cache;
+                $cache = $this->m->get($this->access_token['screen_name'] . ':' . $type); //キャッシュを取得
+                //取得したデータよりキャッシュのほうが新しい場合はキャッシュを返す。
+                if (strtotime($cache[0]->created_at) >= strtotime($this->status[0]->created_at)) {
+                    return $cache;
                 } else {
                     //キャッシュのほうが古い場合は取得したデータ返し、且つキャッシュする。
                     $this->m->set($this->access_token['screen_name'] . ':' . $type, $this->status, 0, Config::CACHE_RIMIT);
@@ -518,17 +513,18 @@ class Page {
     //メニューバー
     public static function MenuBar() {
         return '<div>
-  <a href="' . Config::ROOT_ADDRESS . '">ホーム</a>
-  <a href="' . Config::ROOT_ADDRESS . 'mentions/">返信</a>
-  <a href="' . Config::ROOT_ADDRESS . 'retweets_of_me/">RTされた</a>
-  <a href="' . Config::ROOT_ADDRESS . 'retweeted_by_me/">RTした</a>
-  <a href="' . Config::ROOT_ADDRESS . 'retweeted_to_me/">みんなのRT</a>
-  <a href="' . Config::ROOT_ADDRESS . 'favorites/">ふぁぼ</a>
-  <a href="' . Config::ROOT_ADDRESS . 'search/">検索</a>
-  <a href="' . Config::ROOT_ADDRESS . 'lists/">リスト</a>
-  <a href="' . Config::ROOT_ADDRESS . 'trends/">トレンド</a>
-  <a href="' . Config::ROOT_ADDRESS . 'setting/">設定</a>
-  <a href="' . Config::ROOT_ADDRESS . 'help.html">HELP</a>
+  <a href="/">ホーム</a>
+  <a href="/mentions/">返信</a>
+  <a href="/retweets_of_me/">RTされた</a>
+  <a href="/retweeted_by_me/">RTした</a>
+  <a href="/retweeted_to_me/">みんなのRT</a>
+  <a href="/favorites/">ふぁぼ</a>
+  <a href="/search/">検索</a>
+  <a href="/lists/">リスト</a>
+  <a href="/trends/">トレンド</a>
+  <a href="/setting/">設定</a>
+  <a href="/help.html">HELP</a>
+  <a href="/kumobbs/" target="blank">掲示板</a>
   </div>';
     }
 
@@ -774,7 +770,8 @@ function aa($object) {
             '。おっぱい。', '、おっぱい、', '。せふ。', '、せふ、', '。せふせふ。', '、せふせふ、',
             '。あう。', '、あう、', '。あうあう。', '、あうあう、',
             '。がお。', '、がお、', '。がおー。', '、がおー、', '。ない。', '、ない、', '。わん。', '、わん、',
-            '。ぴき。', '、ぴき、', '。ぴきぴき。', '、ぴきぴき、', '。もうしわけねえ。', '、もうしわけねえ、'
+            '。ぴき。', '、ぴき、', '。ぴきぴき。', '、ぴきぴき、', '。もうしわけねえ。', '、もうしわけねえ、',
+            '。どこ。', '、どこ、', '。なう。', '、なう、'
         ), 'aa' => array(
             '(´･ω･`)ｼｮﾎﾞｰﾝ', '(´･ω･`)', '(｀・ω・´)ｼｬｷｰﾝ', '(｀・ω・´)', '＼(^o^)／ｵﾜﾀ', '＼(^o^)／',
             '(((( ；ﾟДﾟ)))ｶﾞｸｶﾞｸﾌﾞﾙﾌﾞﾙ', '(((( ；ﾟДﾟ)))', '(´；ω；`)ﾌﾞﾜｯ', '(´；ω；`)', '( ；∀；)ｲｲﾊﾅｼﾀﾞﾅｰ', '( ；∀；)',
@@ -788,7 +785,8 @@ function aa($object) {
             '( ﾟ∀ﾟ)o彡゜おっぱい！おっぱい！', '( ﾟ∀ﾟ)o彡゜', '⊂（＾ω＾）⊃ｾﾌｾﾌ!!', '⊂（＾ω＾）⊃', '⊂（＾ω＾）⊃ｾﾌｾﾌ!!', '⊂（＾ω＾）⊃',
             '⊂ミ⊃＾ω＾)ｱｳｱｳ!!', '⊂ミ⊃＾ω＾)', '⊂ミ⊃＾ω＾)ｱｳｱｳ!!', '⊂ミ⊃＾ω＾)',
             '(｢･ω･)｢ｶﾞｵｰ', '(｢･ω･)｢', '(｢･ω･)｢ｶﾞｵｰ', '(｢･ω･)｢', '(ヾﾉ･∀･`)ﾅｲﾅｲ', '(ヾﾉ･∀･`)', '（∪＾ω＾）わんわんお', '（∪＾ω＾）',
-            '(＃＾ω＾)ﾋﾟｷﾋﾟｷ', '(＃＾ω＾)', '(＃＾ω＾)ﾋﾟｷﾋﾟｷ', '(＃＾ω＾)', 'ヽ(\'ω\')ﾉ三ヽ(\'ω\')ﾉもうしわけねぇもうしわけねぇ ', 'ヽ(\'ω\')ﾉ三ヽ(\'ω\')ﾉ'
+            '(＃＾ω＾)ﾋﾟｷﾋﾟｷ', '(＃＾ω＾)', '(＃＾ω＾)ﾋﾟｷﾋﾟｷ', '(＃＾ω＾)', 'ヽ(\'ω\')ﾉ三ヽ(\'ω\')ﾉもうしわけねぇもうしわけねぇ ', 'ヽ(\'ω\')ﾉ三ヽ(\'ω\')ﾉ',
+            '┗┏┗┏(\'o\')┓┛┓┛', '┗┏┗┏(\'o\')┓┛┓┛', '(´へεへ`*)', '(´へεへ`*)' 
         )
     );
     return str_replace($aa['str'], $aa['aa'], $object);
