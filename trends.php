@@ -29,14 +29,9 @@ $status = $twitter->GetStatus('trends');
             } ?>
         </div>
         <div id="footer">
-                <?php adsense() ?>
             <div style="text-align:right">
         <?php echo $stopwatch->Show() ?> <a href="<?php echo Config::ROOT_ADDRESS ?>?logout">logout</a>
             </div>
         </div>
-        <?php
-        $googleAnalyticsImageUrl = googleAnalyticsGetImageUrl();
-        echo '<img src="' . $googleAnalyticsImageUrl . '" />';
-        ?>
     </body>
 </html>

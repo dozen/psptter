@@ -49,7 +49,6 @@ try {
         <?php } ?>
 
         <div id="footer">
-            <?php adsense() ?>
             <div style="float:left">
                 <?php echo Page::Navi($_GET['page'], "") ?>
             </div>
@@ -57,9 +56,5 @@ try {
                 <?php echo page::showStatus(); ?> <?php echo $stopwatch->Show() ?> <a href="<?php echo Config::ROOT_ADDRESS ?>?logout">logout</a>
             </div>
         </div>
-        <?php
-        $googleAnalyticsImageUrl = googleAnalyticsGetImageUrl();
-        echo '<img src="' . $googleAnalyticsImageUrl . '" />';
-        ?>
     </body>
 </html>

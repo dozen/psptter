@@ -120,8 +120,3 @@ if ($_FILES['image']) {
 <?php } else { ?>
     失敗しました。 error code:<?php echo $http_status ?>　<a href="http://psptter.dip.jp/">戻る</a>
 <?php } ?>
-
-<?php
-$googleAnalyticsImageUrl = googleAnalyticsGetImageUrl();
-echo '<img src="' . $googleAnalyticsImageUrl . '" />';
-?>

@@ -583,7 +583,7 @@ class Data {
 
     //データの書き込み
     public function write($key, $value) {
-        return $this->kumo->set($key, serialize($value), false, Config::KUMOFS_CACHE_RIMIT);
+        return $this->kumo->set($key, serialize($value), false, Config::KUMOFS_CACHE_LIMIT);
     }
 
     //データの読み込み
@@ -704,7 +704,7 @@ class OAuthData {
     public function regularUpdate() {
         if (!$_COOKIE['update'] && $_COOKIE['individual_value']) {
             setcookie('update', '1', time() + 259200); //3日に一度更新する
-            setcookie('individual_value', $_COOKIE['individual_value'], time() + Config::KUMOFS_CACHE_RIMIT);
+            setcookie('individual_value', $_COOKIE['individual_value'], time() + Config::KUMOFS_CACHE_LIMIT);
             $individualValue = md5(Cookie::read('individual_value'));
             $oauthData = $this->data->read($individualValue);
             $this->data->write($individualValue, $oauthData);
@@ -796,31 +796,3 @@ function aa($object) {
 header('Content-type: text/html; charset=UTF-8');
 header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
 header('Pragma: no-cache');
-
-//Google Analytics
-$GA_ACCOUNT = "MO-2287701-11";
-$GA_PIXEL = "http://psptter.dip.jp/ga.php";
-
-function googleAnalyticsGetImageUrl() {
-    global $GA_ACCOUNT, $GA_PIXEL;
-    $url = "";
-    $url .= $GA_PIXEL . "?";
-    $url .= "utmac=" . $GA_ACCOUNT;
-    $url .= "&utmn=" . rand(0, 0x7fffffff);
-    $referer = $_SERVER["HTTP_REFERER"];
-    $query = $_SERVER["QUERY_STRING"];
-    $path = $_SERVER["REQUEST_URI"];
-    if (empty($referer)) {
-        $referer = "-";
-    }
-    $url .= "&utmr=" . urlencode($referer);
-    if (!empty($path)) {
-        $url .= "&utmp=" . urlencode($path);
-    }
-    $url .= "&guid=ON";
-    return str_replace("&", "&amp;", $url);
-}
-
-//アドセンス
-require_once 'adsense.php';
-?>
