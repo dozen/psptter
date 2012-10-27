@@ -134,7 +134,7 @@ class Twitter {
             $this->api->post($url, $parameters);
             httpStatus($this->api);
         } else {
-            $this->api->OAuthRequest("https://twitter.com/{$url}.json", "POST", "");
+            $this->api->OAuthRequest($this->api->host . $url . '.json', "POST", "");
             httpStatus($this->api);
         }
     }
@@ -512,19 +512,17 @@ class Page {
 
     //メニューバー
     public static function MenuBar() {
-        return '<div>
+        return '<div id="menu">
   <a href="/">ホーム</a>
   <a href="/mentions/">返信</a>
   <a href="/retweets_of_me/">RTされた</a>
-  <a href="/retweeted_by_me/">RTした</a>
+  <a href="/'. OAuthData::$account['screen_name'] . '/">自分</a>
   <a href="/retweeted_to_me/">みんなのRT</a>
   <a href="/favorites/">ふぁぼ</a>
   <a href="/search/">検索</a>
   <a href="/lists/">リスト</a>
   <a href="/trends/">トレンド</a>
   <a href="/setting/">設定</a>
-  <a href="/help.html">HELP</a>
-  <a href="/kumobbs/" target="blank">掲示板</a>
   </div>';
     }
 
@@ -601,6 +599,8 @@ class Data {
 
 //認証データと設定データを弄るためのクラス
 class OAuthData {
+    
+    static public $account;
 
     public function __construct() {
         $this->data = new Data();
@@ -612,6 +612,7 @@ class OAuthData {
         $individualValue = md5($_COOKIE['individual_value']);
         $oauthData = $this->data->read($individualValue);
         $account = $oauthData['config']['current_account'];
+        self::$account = $oauthData['account'][$account];
         return $oauthData['account'][$account];
     }
 
@@ -771,7 +772,7 @@ function aa($object) {
             '。あう。', '、あう、', '。あうあう。', '、あうあう、',
             '。がお。', '、がお、', '。がおー。', '、がおー、', '。ない。', '、ない、', '。わん。', '、わん、',
             '。ぴき。', '、ぴき、', '。ぴきぴき。', '、ぴきぴき、', '。もうしわけねえ。', '、もうしわけねえ、',
-            '。どこ。', '、どこ、', '。なう。', '、なう、'
+            '。どこ。', '、どこ、', '。なう。', '、なう、', '。ほも。', '、ほも、'
         ), 'aa' => array(
             '(´･ω･`)ｼｮﾎﾞｰﾝ', '(´･ω･`)', '(｀・ω・´)ｼｬｷｰﾝ', '(｀・ω・´)', '＼(^o^)／ｵﾜﾀ', '＼(^o^)／',
             '(((( ；ﾟДﾟ)))ｶﾞｸｶﾞｸﾌﾞﾙﾌﾞﾙ', '(((( ；ﾟДﾟ)))', '(´；ω；`)ﾌﾞﾜｯ', '(´；ω；`)', '( ；∀；)ｲｲﾊﾅｼﾀﾞﾅｰ', '( ；∀；)',
@@ -786,7 +787,7 @@ function aa($object) {
             '⊂ミ⊃＾ω＾)ｱｳｱｳ!!', '⊂ミ⊃＾ω＾)', '⊂ミ⊃＾ω＾)ｱｳｱｳ!!', '⊂ミ⊃＾ω＾)',
             '(｢･ω･)｢ｶﾞｵｰ', '(｢･ω･)｢', '(｢･ω･)｢ｶﾞｵｰ', '(｢･ω･)｢', '(ヾﾉ･∀･`)ﾅｲﾅｲ', '(ヾﾉ･∀･`)', '（∪＾ω＾）わんわんお', '（∪＾ω＾）',
             '(＃＾ω＾)ﾋﾟｷﾋﾟｷ', '(＃＾ω＾)', '(＃＾ω＾)ﾋﾟｷﾋﾟｷ', '(＃＾ω＾)', 'ヽ(\'ω\')ﾉ三ヽ(\'ω\')ﾉもうしわけねぇもうしわけねぇ ', 'ヽ(\'ω\')ﾉ三ヽ(\'ω\')ﾉ',
-            '┗┏┗┏(\'o\')┓┛┓┛', '┗┏┗┏(\'o\')┓┛┓┛', '(´へεへ`*)', '(´へεへ`*)' 
+            '┗┏┗┏(\'o\')┓┛┓┛', '┗┏┗┏(\'o\')┓┛┓┛', '(´へεへ`*)', '(´へεへ`*)', '┌（┌＾o＾）┐ﾎﾓｫ…', '┌（┌＾o＾）┐'
         )
     );
     return str_replace($aa['str'], $aa['aa'], $object);

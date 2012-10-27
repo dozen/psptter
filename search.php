@@ -49,7 +49,12 @@ if ($_GET['s']) {
             <div style="float:left">
                 <?php echo Page::Navi($_GET['page'], $_GET['s']) ?>
             </div>
+            <div class="go_top">
+                <a href="#menu">トップへ戻る</a>
+            </div>
             <div style="text-align:right">
+                <a href="/help.html">HELP</a>
+                <a href="/kumobbs/" target="blank">掲示板</a>
                 <?php echo $stopwatch->Show() ?> <a href="<?php echo Config::ROOT_ADDRESS ?>?logout">logout</a>
             </div>
         </div>

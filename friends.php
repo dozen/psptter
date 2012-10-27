@@ -59,7 +59,12 @@ if (isset($_GET['debug'])) {
             <div style="float:left">
                 <?php echo Page::Cursor($status->next_cursor, $status->previous_cursor) ?><br>
             </div>
+            <div class="go_top">
+                <a href="#menu">トップへ戻る</a>
+            </div>
             <div style="text-align:right">
+                <a href="/help.html">HELP</a>
+                <a href="/kumobbs/" target="blank">掲示板</a>
                 <?php echo $stopwatch->Show() ?>
             </div>
         </div>

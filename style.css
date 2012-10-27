@@ -1,114 +1,119 @@
 body{
-  margin:3px;
-  background-color: #f3f3f3;
-  line-height: 1.1em;
+    margin:3px;
+    background-color: #f3f3f3;
+    line-height: 1.1em;
 }
 
 #header{
-  border-bottom:1px #000 dashed;
-  padding: 0px 0px 5px;
+    border-bottom:1px #000 dashed;
+    padding: 0px 0px 5px;
 }
 
 .buttonbar{
-  clear:both;
-  text-align:right;
-  font-size: small;
+    clear:both;
+    text-align:right;
+    font-size: small;
 }
 
 .normal{
-  clear:both;
-  padding: 3px;
-  border:dashed;
-  border-width:0px 1px 1px;
-  background-color: #fff;
+    clear:both;
+    padding: 3px;
+    border:dashed;
+    border-width:0px 1px 1px;
+    background-color: #fff;
 }
 
 .reply{
-  clear:both;
-  padding: 3px;
-  border:dashed;
-  border-width:0px 1px 1px;
-  background-color: #eef;
+    clear:both;
+    padding: 3px;
+    border:dashed;
+    border-width:0px 1px 1px;
+    background-color: #eef;
 }
 
 .text{
-  margin-left: 52px;
-  line-height: 1.3em;
+    margin-left: 52px;
+    line-height: 1.3em;
 }
 
 img.icon{
-  width:48px;
-  height:48px;
+    width:48px;
+    height:48px;
 }
 
 .textmiddle {
-  margin-left: 36px;
-  line-height: 1.3em;
+    margin-left: 36px;
+    line-height: 1.3em;
 }
 
 img.iconmiddle{
-  width:32px;
-  height:32px;
+    width:32px;
+    height:32px;
 }
 
 .textsmall {
-  margin-left: 20px;
-  line-height: 1.3em;
+    margin-left: 20px;
+    line-height: 1.3em;
 }
 
 img.iconsmall{
-  width:16px;
-  height:16px;
+    width:16px;
+    height:16px;
 }
 
 .textnoicon {
-  line-height: 1.3em;
+    line-height: 1.3em;
 }
 
 .icon{
-  float:left;
+    float:left;
 }
 
 .profile{
-  clear:both;
-  padding: 5px;
-  border:dashed;
-  border-width:1px;
-  background-color: #fff;
-  margin:3px 0px 0px;
+    clear:both;
+    padding: 5px;
+    border:dashed;
+    border-width:1px;
+    background-color: #fff;
+    margin:3px 0px 0px;
 }
 
 textarea {
-  width: 300px;
-  height: 35px;
+    width: 300px;
+    height: 35px;
 }
 
 form {
-  margin: 3px 0px 0px;
+    margin: 3px 0px 0px;
 }
 
 .button {
-  position: absolute;
+    position: absolute;
 }
 
-.small{
-  font-size: small;
-  color:#999;
+.small {
+    font-size: small;
+    color:#999;
+}
+
+.go_top {
+    float: left;
+    margin: 0px 20px 0px;
 }
 
 a {
-  color: #1212ff;
+    color: #1212ff;
 }
 
 .small a {
-  color: #999;
+    color: #999;
 }
 
 #footer {
-  clear:both;
-  margin: 5px;
+    clear:both;
+    margin: 5px;
 }
 
 .protected {
-  position:absolute;
+    position:absolute;
 }

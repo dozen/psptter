@@ -1,6 +1,10 @@
 <?php
 require 'class.php';
 $data = new OAuthData();
+
+//現在のアカウントを確認するため。
+$data->accountget();
+
 $config = $data->configGet();
 $accountlist = $data->accountlist();
 if (is_numeric($_POST['count'])) {

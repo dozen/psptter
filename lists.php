@@ -24,7 +24,7 @@ try {
 }
 
 //TLの取得
-    $status = $twitter->GetStatus('lists', $_GET);
+$status = $twitter->GetStatus('lists', $_GET);
 ?>
 <!DOCTYPE html>
 <html>
@@ -53,7 +53,12 @@ try {
             <div style="float:left">
                 <?php echo Page::Navi($_GET['page'], "") ?>
             </div>
+            <div class="go_top">
+                <a href="#menu">トップへ戻る</a>
+            </div>
             <div style="text-align:right">
+                <a href="/help.html">HELP</a>
+                <a href="/kumobbs/" target="blank">掲示板</a>
                 <?php echo page::showStatus(); ?> <?php echo $stopwatch->Show() ?> <a href="<?php echo Config::ROOT_ADDRESS ?>?logout">logout</a>
             </div>
         </div>
