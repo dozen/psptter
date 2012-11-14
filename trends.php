@@ -34,10 +34,6 @@ $status = $twitter->GetStatus('trends');
             <a href="#menu">トップへ戻る</a>
         </div>
         <div id="footer">
-<<<<<<< HEAD
-            <?php adsense() ?>
-=======
->>>>>>> 9c9b5149c614186606761a0b01b000e98aca93aa
             <div style="text-align:right">
                 <a href="/help.html">HELP</a>
                 <a href="/kumobbs/" target="blank">掲示板</a>

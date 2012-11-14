@@ -5,8 +5,9 @@ require 'config.php';
 
 class Authering {
 
-    //アカウントの認証とか
-
+    /**
+     * アカウントの認証とか
+     */
     public static function Redirect() {
         session_start();
         $redirect = new TwitterOAuth(Config::CONSUMER_KEY, Config::CONSUMER_SECRET);
@@ -43,7 +44,9 @@ class Authering {
         }
     }
 
-    //ログアウト。セッション、認証データ、Cookieをすべて消す。
+    /**
+     * ログアウト。セッション、認証データ、Cookieをすべて消す。
+     */
     public static function Logout() {
         session_destroy();
         $oauthData = new OAuthData();
@@ -79,7 +82,9 @@ class Twitter {
         }
     }
 
-    //ツイートなど
+    /**
+     * ツイートなど
+     */
     public function Tweet($type, $content) {
         $this->type = $type;
         switch ($type) {
@@ -139,7 +144,9 @@ class Twitter {
         }
     }
 
-    //タイムラインの取得
+    /**
+     * タイムラインの取得
+     */
     public function GetStatus($type = false, $option = null) {
         unset($option['tm']);
         //何ページ目を取得するのかを指定。指定がない場合1ページ目を表示
@@ -224,7 +231,9 @@ class Twitter {
         }
     }
 
-    //検索結果の取得
+    /**
+     * 検索結果の取得
+     */
     public function GetSearch($option) {
         //何ページ目か
         if (!$option['page']) {
@@ -266,7 +275,9 @@ class Twitter {
         return $this->status;
     }
 
-    //リプライ or ツイートの分別をして、divタグのclassを返す
+    /**
+     * リプライ or ツイートの分別をして、divタグのclassを返す
+     */
     public function JudgeReply($text) {
         if (strpos($text, '@' . $this->access_token['screen_name']) !== false) {
             return 'reply';
@@ -275,7 +286,9 @@ class Twitter {
         }
     }
 
-    //"1日前 返信先 | 非RT | RT | ☆ | 返信"←これ
+    /**
+     * "1日前 返信先 | 非RT | RT | ☆ | 返信"←これ
+     */
     public function ToolBar($screen_name, $favorited, $status_id, $text, $in_reply_to_status_id, $protected) {
         $reply = ' | <a href="" onclick="add_text(\'@' . $screen_name . ' \',\'' . $status_id . '\');return false">返信</a>';
         if ($this->config['lojax'] == 'disable') {
@@ -326,7 +339,9 @@ class Twitter {
         return $mention . $rt . $fav . $destroy . $reply;
     }
 
-    //誰がリツイートしたかを表示するだけ
+    /**
+     * 誰がリツイートしたかを表示する
+     */
     public static function Retweet($line) {
         if ($line->retweeted_status) {
             $retweeted_user = $line->user->screen_name;
@@ -338,7 +353,9 @@ class Twitter {
         return $line;
     }
 
-    //URL, ユーザ, ハッシュタグにリンクを貼る
+    /**
+     * URL, ユーザ, ハッシュタグにリンクを貼る
+     */
     public static function StatusProcessing($status) {
         $status = preg_replace("/htt[ps]{1,}:\/\/t\.co\/[a-zA-Z0-9]{1,}/u", "<a target=\"_blank\" href=\"$0\">$0</a>", $status);
         $status = preg_replace("/[#＃]([a-zA-Z0-9\-_一-龠ぁ-ゞゔゕゖア-ンーヽヾヴｦ-ﾟ々]{1,})/u", "<a href='" . Config::ROOT_ADDRESS . "search/?s=%23$1'>#$1</a>", $status);
@@ -346,12 +363,16 @@ class Twitter {
         return nl2br($status);
     }
 
-    //取得したトレンドを検索できるようにリンクを貼る
+    /**
+     * 取得したトレンドを検索できるようにリンクを貼る
+     */
     public static function TrendsProcessing($status) {
         return '<a href="' . Config::ROOT_ADDRESS . 'search/?s=' . rawurlencode($status) . '">' . $status . '</a><br>';
     }
 
-    //投稿時刻の加工
+    /**
+     * 投稿時刻の加工
+     */
     public function Time($time) {
         $time = time() - strtotime($time);
         if ($time < 15) {
@@ -373,7 +394,9 @@ class Twitter {
         return $time;
     }
 
-    //何人がRTしたかを表示するだけ
+    /**
+     * 何人がRTしたかを表示するだけ
+     */
     public static function RetweetStatus($retweet_count, $retweeted_user) {
         if ($retweet_count) {
             $retweetstatus = $retweet_count . '人がリツイート　';
@@ -384,7 +407,9 @@ class Twitter {
         return $retweetstatus;
     }
 
-    //ユーザのプロフィールを表示する
+    /**
+     * ユーザのプロフィールを表示する
+     */
     public function UserProfile($screen_name) {
         if ($this->type == 'user_timeline' && $this->page == 1) {
             $this->profile = $this->status[0]->user;
@@ -394,7 +419,9 @@ class Twitter {
         }
     }
 
-    //フォロー・リムーブのリンクを作成
+    /**
+     * フォロー・リムーブのリンクを作成
+     */
     public function Follow($user_id, $following) {
         if ($this->config['lojax'] == 'disable') {
             //LoJAXが無効な場合
@@ -428,7 +455,9 @@ function httpStatus($status = false) {
     return $cache;
 }
 
-//パフォーマンス計測用
+/**
+ * パフォーマンス計測用
+ */
 class Timer {
 
     private $time;
@@ -443,7 +472,9 @@ class Timer {
 
 }
 
-//ページにまつわる細々したもの。
+/**
+ * ページにまつわる細々したもの。
+ */
 class Page {
 
     public function __construct() {
@@ -452,7 +483,9 @@ class Page {
         $this->config = $data->configGet();
     }
 
-    //アイコンのサイズ設定に従ってツイートの内容部分のスタイルを変更する
+    /**
+     * アイコンのサイズ設定に従ってツイートの内容部分のスタイルを変更する
+     */
     public function textStyle() {
         if ($this->config['icon'] == 'disable') {
             $class = 'textnoicon';
@@ -466,7 +499,9 @@ class Page {
         return $class;
     }
 
-    //アイコンのサイズの設定に従ってアイコンのスタイルを変更する
+    /**
+     * アイコンのサイズの設定に従ってアイコンのスタイルを変更する
+     */
     public function IconStyle($url, $protected) {
         if ($this->config['icon'] == 'disable') {
             if ($protected) {
@@ -492,7 +527,9 @@ class Page {
         return '<div class="icon">' . $protected . '<img src="' . $url . '" class="' . $class . '"></div>';
     }
 
-    //ヘッダ
+    /**
+     * ヘッダ
+     */
     public function Header() {
         $results = '<title>PSPったー - psptter</title>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -510,7 +547,9 @@ class Page {
         return $results;
     }
 
-    //メニューバー
+    /**
+     * メニューバー
+     */
     public static function MenuBar() {
         return '<div id="menu">
   <a href="/">ホーム</a>
@@ -526,7 +565,9 @@ class Page {
   </div>';
     }
 
-    //ページネーション
+    /**
+     * ページネーション
+     */
     public static function Navi($page, $s) {
 
         //検索の場合は検索文字列の保持をする
@@ -544,7 +585,9 @@ class Page {
         }
     }
 
-    //フォロー・フォロワーのページネーション。特殊なので別実装
+    /**
+     * フォロー・フォロワーのページネーション。特殊なので別実装
+     */
     public static function Cursor($next, $previous) {
         if ($next) {
             $next = '<a href="' . $next . '">&#62;</a>';
@@ -571,7 +614,9 @@ class Page {
 //各ページでいちいちインスタンス作成するコードを書くのが面倒なのでここで作成する
 $page = new Page();
 
-//kumofs
+/**
+ * kumofs
+ */
 class Data {
 
     public function __construct() {
@@ -579,17 +624,23 @@ class Data {
         $this->kumo->pconnect(Config::KUMOFSHOST, Config::KUMOFSPORT);
     }
 
-    //データの書き込み
+    /**
+     * データの書き込み
+     */
     public function write($key, $value) {
         return $this->kumo->set($key, serialize($value), false, Config::KUMOFS_CACHE_LIMIT);
     }
 
-    //データの読み込み
+    /**
+     * データの読み込み
+     */
     public function read($keys) {
         return unserialize($this->kumo->get($keys));
     }
 
-    //データの削除
+    /**
+     * データの削除
+     */
     public function delete($keys) {
         $this->kumo->delete($keys);
         unset($this->cache);
@@ -607,7 +658,9 @@ class OAuthData {
         $this->regularUpdate();
     }
 
-    //アカウントの情報を取得する
+    /**
+     * アカウントの情報を取得する
+     */
     public function accountget() {
         $individualValue = md5($_COOKIE['individual_value']);
         $oauthData = $this->data->read($individualValue);
@@ -616,14 +669,18 @@ class OAuthData {
         return $oauthData['account'][$account];
     }
 
-    //設定の読み込み
+    /**
+     * 設定の読み込み
+     */
     public function configGet() {
         $individualValue = md5($_COOKIE['individual_value']);
         $oauthData = $this->data->read($individualValue);
         return $oauthData['config'];
     }
 
-    //アカウント一覧
+    /**
+     * アカウント一覧
+     */
     public function accountlist() {
         $individualValue = md5($_COOKIE['individual_value']);
         $accountlist = $this->data->read($individualValue);
@@ -631,7 +688,9 @@ class OAuthData {
         return array_keys($accountlist['account']);
     }
 
-    //設定の書き込み
+    /**
+     * 設定の書き込み
+     */
     public function configput($key, $value) {
         $individualValue = md5($_COOKIE['individual_value']);
         $data = $this->data->read($individualValue);
@@ -649,7 +708,9 @@ class OAuthData {
         }
     }
 
-    //アカウント追加
+    /**
+     * アカウント追加
+     */
     public function accountput($accsessToken) {
         $account = $accsessToken['screen_name'];
         $individualValue = md5(Cookie::read('individual_value'));
@@ -663,7 +724,9 @@ class OAuthData {
         return $this->data->write($individualValue, $data);
     }
 
-    //アカウント情報の削除
+    /**
+     * アカウント情報の削除
+     */
     public function accountclear($account) {
         $individualValue = md5(Cookie::read('individual_value'));
         $oauthData = $this->data->read($individualValue);
@@ -677,7 +740,9 @@ class OAuthData {
         $this->data->delete(md5(Cookie::read('individual_value')));
     }
 
-    //初回認証時にデータを登録
+    /**
+     * 初回認証時にデータを登録
+     */
     public function registdata($oauthData) {
         //kumofsに登録するデータの内容
         $registdata = array(
@@ -701,7 +766,9 @@ class OAuthData {
         return $result;
     }
 
-    //Cookieとkumofs上のデータの寿命を定期的に更新
+    /**
+     * Cookieとkumofs上のデータの寿命を定期的に更新
+     */
     public function regularUpdate() {
         if (!$_COOKIE['update'] && $_COOKIE['individual_value']) {
             setcookie('update', '1', time() + 259200); //3日に一度更新する
@@ -714,7 +781,9 @@ class OAuthData {
 
 }
 
-//Cookieを弄るためのクラス（不要？）
+/**
+ * Cookieを弄るためのクラス（不要？）
+ */
 class Cookie {
 
     public static function write($values) {
@@ -755,7 +824,9 @@ class Cookie {
 
 }
 
-//顔文字の変換
+/**
+ * 顔文字の変換
+ */
 function aa($object) {
     $aa = array(
         'str' => array(

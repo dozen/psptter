@@ -41,7 +41,7 @@ if ($_GET['status_id']) {
             <form name="post" method="post" action="<?php echo Config::ROOT_ADDRESS ?>send.php">
                 <input type="hidden" name="id">
                 <textarea name="tweet" onkeydown="strCount()" onkeydown="strCount()" onkeyup="strCount()" onkeypress="strCount()" onChange="strCount()"></textarea>
-                <input type="submit" class="button"  value="ツイート"> <span id="strcount">　</span>
+                <input type="submit" class="button" onclick="return false" value="ツイート"> <span id="strcount">　</span>
             </form>
         </div>
         <?php
@@ -61,7 +61,6 @@ if ($_GET['status_id']) {
             </div>
         <?php } ?>
         <div id="footer">
-            <?php adsense() ?>
             <div style="float:left">
                 <?php echo Page::Navi($_GET['page'], "") ?>
             </div>
@@ -71,7 +70,7 @@ if ($_GET['status_id']) {
             <div style="text-align:right">
                 <a href="/help.html">HELP</a>
                 <a href="/kumobbs/" target="blank">掲示板</a>
-                <?php echo page::showStatus(); ?> <?php echo $stopwatch->Show() ?> <a href="<?php echo Config::ROOT_ADDRESS ?>?logout">logout</a>
+                <?php echo page::showStatus(); ?> <?php echo $stopwatch->Show() ?> <a href="/?logout">logout</a>
             </div>
         </div>
     </body>
