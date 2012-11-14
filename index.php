@@ -40,7 +40,7 @@ if ($_GET['status_id']) {
             <?php echo Page::MenuBar() ?>
             <form name="post" method="post" action="<?php echo Config::ROOT_ADDRESS ?>send.php">
                 <input type="hidden" name="id">
-                <textarea name="tweet" onkeydown="strCount()" onChange="strCount()"></textarea>
+                <textarea name="tweet" onkeydown="strCount()" onkeydown="strCount()" onkeyup="strCount()" onkeypress="strCount()" onChange="strCount()"></textarea>
                 <input type="submit" class="button"  value="ツイート"> <span id="strcount">　</span>
             </form>
         </div>
