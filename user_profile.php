@@ -57,7 +57,6 @@ if ($_GET['screen_name']) {
             </div>
         <?php } ?>
         <div id="footer">
-            <?php adsense() ?>
             <div style="float:left">
                 <?php echo Page::Navi($_GET['page'], "") ?>
             </div>

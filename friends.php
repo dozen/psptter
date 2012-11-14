@@ -55,7 +55,6 @@ if (isset($_GET['debug'])) {
             </div>
         <?php } ?>
         <div id="footer">
-            <?php adsense() ?>
             <div style="float:left">
                 <?php echo Page::Cursor($status->next_cursor, $status->previous_cursor) ?><br>
             </div>
@@ -68,9 +67,5 @@ if (isset($_GET['debug'])) {
                 <?php echo $stopwatch->Show() ?>
             </div>
         </div>
-        <?php
-        $googleAnalyticsImageUrl = googleAnalyticsGetImageUrl();
-        echo '<img src="' . $googleAnalyticsImageUrl . '" />';
-        ?>
     </body>
 </html>

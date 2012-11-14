@@ -126,10 +126,5 @@ if ($_POST['account']) {
             </form>
             ※時間がかかります＞＜；
         </div>
-        <?php adsense() ?>
-        <?php
-        $googleAnalyticsImageUrl = googleAnalyticsGetImageUrl();
-        echo '<img src="' . $googleAnalyticsImageUrl . '" />';
-        ?>
     </body>
 </html>
