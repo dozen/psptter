@@ -31,7 +31,7 @@ if ($_GET['screen_name']) {
             <form name="post" method="post" action="<?php echo Config::ROOT_ADDRESS ?>send.php">
                 <input type="hidden" name="id">
                 <textarea name="tweet" onkeydown="strCount()" onChange="strCount()"></textarea>
-                <input type="submit" class="button"  value="ツイート"> <span id="strcount">　</span>
+                <input type="submit" class="button"<?php echo Page::tweetByLojax() ?> value="ツイート"> <span id="strcount">　</span>
             </form>
             <div class="profile">
                 <div class="icon"><img src="<?php echo $twitter->profile->profile_image_url ?>" class="icon"></div>
