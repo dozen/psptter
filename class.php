@@ -531,18 +531,19 @@ class Page {
      * ヘッダ
      */
     public function Header() {
-        $results = '<title>PSPったー - psptter</title>
-      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-      <link href="' . Config::ROOT_ADDRESS . 'style.css" rel="stylesheet" type="text/css">
-      <script src="' . Config::ROOT_ADDRESS . 'js.js" type="text/javascript"></script>';
+        $results = '<title>PSPったー - psptter</title>' .
+                '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">' .
+                '<link href="/style.css" rel="stylesheet" type="text/css">' .
+                '<script src="/js.js" type="text/javascript"></script>';
         //3DS用の設定。
         if (strpos($_SERVER['HTTP_USER_AGENT'], 'Nintendo 3DS') !== false) {
             $results .= '<meta name="viewport" content="width=320">';
         }
         //LoJAXを有効にしている場合、lojax.jsを読み込む
         if ($this->config['lojax'] == "enable") {
-            $results = $results . '
-        <script src="' . Config::ROOT_ADDRESS . 'lojax.js" type="text/javascript"></script>';
+            $results = $results .
+                    '<script src="/lojax-settings.js" type="text/javascript"></script>' .
+                    '<script src="/lojax.js" type="text/javascript"></script>';
         }
         return $results;
     }
@@ -555,7 +556,7 @@ class Page {
   <a href="/">ホーム</a>
   <a href="/mentions/">返信</a>
   <a href="/retweets_of_me/">RTされた</a>
-  <a href="/'. OAuthData::$account['screen_name'] . '/">自分</a>
+  <a href="/' . OAuthData::$account['screen_name'] . '/">自分</a>
   <a href="/retweeted_to_me/">みんなのRT</a>
   <a href="/favorites/">ふぁぼ</a>
   <a href="/search/">検索</a>
@@ -608,7 +609,7 @@ class Page {
             echo 'API:' . $status->rateLimit->remaining . '/' . $status->rateLimit->limit;
         }
     }
-    
+
     public static function tweetByLojax() {
         if (Oauthdata::$config['lojax'] === 'enable') {
             return ' onclick="tweetStatus();return false"';
@@ -658,7 +659,7 @@ class Data {
 
 //認証データと設定データを弄るためのクラス
 class OAuthData {
-    
+
     static public $account, $config;
 
     public function __construct() {
