@@ -41,7 +41,7 @@ if ($_GET['status_id']) {
             <form name="post" method="post" action="<?php echo Config::ROOT_ADDRESS ?>send.php">
                 <input type="hidden" name="id">
                 <textarea name="tweet" onkeydown="strCount()" onkeydown="strCount()" onkeyup="strCount()" onkeypress="strCount()" onChange="strCount()"></textarea>
-                <input type="submit" class="button" onclick="return false" value="ツイート"> <span id="strcount">　</span>
+                <input type="submit" class="button"<?php echo Page::tweetByLojax() ?> value="ツイート"> <span id="strcount">　</span>
             </form>
         </div>
         <?php

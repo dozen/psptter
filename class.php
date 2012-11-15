@@ -608,6 +608,14 @@ class Page {
             echo 'API:' . $status->rateLimit->remaining . '/' . $status->rateLimit->limit;
         }
     }
+    
+    public static function tweetByLojax() {
+        if (Oauthdata::$config['lojax'] === 'enable') {
+            return ' onclick="tweetStatus();return false"';
+        } else {
+            return '';
+        }
+    }
 
 }
 
@@ -651,7 +659,7 @@ class Data {
 //認証データと設定データを弄るためのクラス
 class OAuthData {
     
-    static public $account;
+    static public $account, $config;
 
     public function __construct() {
         $this->data = new Data();
@@ -666,6 +674,7 @@ class OAuthData {
         $oauthData = $this->data->read($individualValue);
         $account = $oauthData['config']['current_account'];
         self::$account = $oauthData['account'][$account];
+        self::$config = $oauthData['config'];
         return $oauthData['account'][$account];
     }
 
