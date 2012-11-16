@@ -76,7 +76,7 @@ class Twitter {
             $this->config = $oauthData->configGet();
             $this->api = new TwitterOAuth(Config::CONSUMER_KEY, Config::CONSUMER_SECRET, $this->access_token['oauth_token'], $this->access_token['oauth_token_secret']);
             $this->m = new Memcache();
-            $this->m->pconnect(Config::MEMCACHEDHOST, Config::MEMCACHEDPORT); //Memcached接続
+            $this->m->pconnect(Config::MEMCACHED_HOST, Config::MEMCACHED_PORT); //Memcached接続
         } else {
             throw new Exception('Please Login');
         }
@@ -219,7 +219,7 @@ class Twitter {
                     return $cache;
                 } else {
                     //キャッシュのほうが古い場合は取得したデータ返し、且つキャッシュする。
-                    $this->m->set($this->access_token['screen_name'] . ':' . $type, $this->status, 0, Config::CACHE_RIMIT);
+                    $this->m->set($this->access_token['screen_name'] . ':' . $type, $this->status, 0, Config::CACHE_LIMIT);
                     return $this->status;
                 }
             } else {
@@ -261,7 +261,7 @@ class Twitter {
             //キャッシュがない場合はAPIから取得しキャッシュにセットする。
             if (!$this->response) {
                 $this->response = $this->api->get('statuses/show', array('id' => $status_id));
-                $this->m->set($this->access_token['screen_name'] . ':status_id:' . $status_id, $this->response, 0, Config::CACHE_RIMIT);
+                $this->m->set($this->access_token['screen_name'] . ':status_id:' . $status_id, $this->response, 0, Config::CACHE_LIMIT);
             }
             $this->status[] = $this->response;
             //in_reply_toがあるかを判定
@@ -413,7 +413,7 @@ class Twitter {
     public function UserProfile($screen_name) {
         if ($this->type == 'user_timeline' && $this->page == 1) {
             $this->profile = $this->status[0]->user;
-            $this->m->set($this->access_token['screen_name'] . ':profile:' . $this->profile->screen_name, $this->profile, 0, Config::CACHE_RIMIT);
+            $this->m->set($this->access_token['screen_name'] . ':profile:' . $this->profile->screen_name, $this->profile, 0, Config::CACHE_LIMIT);
         } else {
             $this->profile = $this->m->get($this->access_token['screen_name'] . ':profile:' . $screen_name);
         }
@@ -630,7 +630,7 @@ class Data {
 
     public function __construct() {
         $this->kumo = new Memcache();
-        $this->kumo->pconnect(Config::KUMOFSHOST, Config::KUMOFSPORT);
+        $this->kumo->pconnect(Config::KUMOFS_HOST, Config::KUMOFS_PORT);
     }
 
     /**
