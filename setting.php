@@ -73,7 +73,7 @@ if ($_POST['account']) {
     <head>
         <title>設定 | PSPったー</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <link href="<?php echo Config::ROOT_ADDRESS ?>style.css" rel="stylesheet" type="text/css">
+        <link href="/style.css" rel="stylesheet" type="text/css">
     </head>
     <body>
         <div id="header">
@@ -87,7 +87,7 @@ if ($_POST['account']) {
                 </p>
                 <p>
                     フッター
-                    <input type="text" size="20" name="footer" value="<?php echo htmlspecialchars($footer) ?>"> <a href="<?php echo Config::ROOT_ADDRESS ?>help.html#footer">?</a>
+                    <input type="text" size="20" name="footer" value="<?php echo htmlspecialchars($footer) ?>"> <a href="/help.html#footer">?</a>
                 </p>
                 <p>
                     アイコン
@@ -99,7 +99,7 @@ if ($_POST['account']) {
                 <p>
                     LoJAX
                     <input type="radio" name="lojax" value="enable" <?php echo $lojax_radio['enable'] ?>>有効
-                    <input type="radio" name="lojax" value="disable" <?php echo $lojax_radio['disable'] ?>>無効 <a href="<?php echo Config::ROOT_ADDRESS ?>help.html#lojax">?</a>
+                    <input type="radio" name="lojax" value="disable" <?php echo $lojax_radio['disable'] ?>>無効 <a href="/>help.html#lojax">?</a>
                 </p>
                 <p>
                     <select name="account">
@@ -114,13 +114,13 @@ if ($_POST['account']) {
                         ?>
                     </select>
                     <input type="checkbox" name="accountcontrol" value="delete">削除
-                    <a href="<?php echo Config::ROOT_ADDRESS ?>?redirect">アカウントの追加</a>
+                    <a href="/?redirect">アカウントの追加</a>
                 </p>
                 <input type="submit" value="設定終了">
             </form>
         </div>
         <div class="normal">
-            <form action="<?php echo Config::ROOT_ADDRESS ?>profile_image.php" method="post" enctype="multipart/form-data">
+            <form action="/profile_image.php" method="post" enctype="multipart/form-data">
                 <input type="file" name="image">
                 <input type="submit" value="アイコンを変更">
             </form>

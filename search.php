@@ -24,7 +24,7 @@ if ($_GET['s']) {
     <body>
         <div id="header">
             <?php echo Page::MenuBar() ?>
-            <form method="get" action="<?php echo Config::ROOT_ADDRESS ?>search/">
+            <form method="get" action="/search/">
                 <textarea name="s"></textarea>
                 <input type="submit" class="button" value="検索">
             </form>
@@ -36,7 +36,7 @@ if ($_GET['s']) {
             <div class="normal">
                 <?php echo $page->IconStyle($line->profile_image_url, $line->protected) ?>
                 <div class="<?php echo $page->textStyle() ?>">
-                    <a href="<?php echo Config::ROOT_ADDRESS . $line->from_user ?>/"><?php echo $line->from_user ?></a> <span class="small"><?php echo $line->from_user_name ?></span><br>
+                    <a href="/<?php echo $line->from_user ?>/"><?php echo $line->from_user ?></a> <span class="small"><?php echo $line->from_user_name ?></span><br>
                     <?php echo nl2br(Twitter::StatusProcessing($line->text)) ?>
                 </div>
                 <div class="buttonbar">
@@ -54,7 +54,7 @@ if ($_GET['s']) {
             <div style="text-align:right">
                 <a href="/help.html">HELP</a>
                 <a href="/kumobbs/" target="blank">掲示板</a>
-                <?php echo $stopwatch->Show() ?> <a href="<?php echo Config::ROOT_ADDRESS ?>?logout">logout</a>
+                <?php echo $stopwatch->Show() ?> <a href="/?logout">logout</a>
             </div>
         </div>
     </body>

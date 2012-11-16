@@ -296,18 +296,18 @@ class Twitter {
             //LoJAXが無効の場合
             if ($screen_name == $this->access_token['screen_name']) {
                 //ツイートの削除ボタン、RT、非公式RTを実装
-                $destroy = ' | <a href="' . Config::ROOT_ADDRESS . 'send.php?destroy=' . $status_id . '">消</a>';
+                $destroy = ' | <a href="/send.php?destroy=' . $status_id . '">消</a>';
             } else {
                 $destroy = null;
                 if (!$protected) {
-                    $rt .= '<a href="' . Config::ROOT_ADDRESS . 'send.php?retweet=' . $status_id . '">RT</a> | ';
+                    $rt .= '<a href="/send.php?retweet=' . $status_id . '">RT</a> | ';
                 }
             }
             //ふぁぼ
             if ($favorited) {
-                $fav = '<a href="' . Config::ROOT_ADDRESS . 'send.php?fav_dest=' . $status_id . '">★</a>';
+                $fav = '<a href="/send.php?fav_dest=' . $status_id . '">★</a>';
             } else {
-                $fav = '<a href="' . Config::ROOT_ADDRESS . 'send.php?fav=' . $status_id . '">☆</a>';
+                $fav = '<a href="/send.php?fav=' . $status_id . '">☆</a>';
             }
         } else {
             //LoJAXが有効な場合
@@ -332,7 +332,7 @@ class Twitter {
         }
         //返信先
         if ($in_reply_to_status_id) {
-            $mention = '<a href="' . Config::ROOT_ADDRESS . 'talk/' . $status_id . '">返信先</a> | ';
+            $mention = '<a href="/talk/' . $status_id . '">返信先</a> | ';
         } else {
             $mention = null;
         }
@@ -358,8 +358,8 @@ class Twitter {
      */
     public static function StatusProcessing($status) {
         $status = preg_replace("/htt[ps]{1,}:\/\/t\.co\/[a-zA-Z0-9]{1,}/u", "<a target=\"_blank\" href=\"$0\">$0</a>", $status);
-        $status = preg_replace("/[#＃]([a-zA-Z0-9\-_一-龠ぁ-ゞゔゕゖア-ンーヽヾヴｦ-ﾟ々]{1,})/u", "<a href='" . Config::ROOT_ADDRESS . "search/?s=%23$1'>#$1</a>", $status);
-        $status = preg_replace("/@([a-zA-Z0-9-_]{1,})/u", "<a href='" . Config::ROOT_ADDRESS . "$1/'>@$1</a>", $status);
+        $status = preg_replace("/[#＃]([a-zA-Z0-9\-_一-龠ぁ-ゞゔゕゖア-ンーヽヾヴｦ-ﾟ々]{1,})/u", "<a href='/search/?s=%23$1'>#$1</a>", $status);
+        $status = preg_replace("/@([a-zA-Z0-9-_]{1,})/u", "<a href='/$1/'>@$1</a>", $status);
         return nl2br($status);
     }
 
@@ -367,7 +367,7 @@ class Twitter {
      * 取得したトレンドを検索できるようにリンクを貼る
      */
     public static function TrendsProcessing($status) {
-        return '<a href="' . Config::ROOT_ADDRESS . 'search/?s=' . rawurlencode($status) . '">' . $status . '</a><br>';
+        return '<a href="/search/?s=' . rawurlencode($status) . '">' . $status . '</a><br>';
     }
 
     /**
@@ -402,7 +402,7 @@ class Twitter {
             $retweetstatus = $retweet_count . '人がリツイート　';
         }
         if ($retweeted_user) {
-            $retweetstatus = '<a href="' . Config::ROOT_ADDRESS . $retweeted_user . '/">' . $retweeted_user . 'がリツイート</a>　' . $retweetstatus;
+            $retweetstatus = '<a href="/' . $retweeted_user . '/">' . $retweeted_user . 'がリツイート</a>　' . $retweetstatus;
         }
         return $retweetstatus;
     }
@@ -426,9 +426,9 @@ class Twitter {
         if ($this->config['lojax'] == 'disable') {
             //LoJAXが無効な場合
             if ($following) {
-                $results = '<a href="' . Config::ROOT_ADDRESS . 'send.php?remove=' . $user_id . '">リムーブ</a>';
+                $results = '<a href="/send.php?remove=' . $user_id . '">リムーブ</a>';
             } else {
-                $results = '<a href="' . Config::ROOT_ADDRESS . 'send.php?follow=' . $user_id . '">フォロー</a>';
+                $results = '<a href="/send.php?follow=' . $user_id . '">フォロー</a>';
             }
         } else {
             //LoJAXが有効な場合
@@ -505,22 +505,22 @@ class Page {
     public function IconStyle($url, $protected) {
         if ($this->config['icon'] == 'disable') {
             if ($protected) {
-                $protected = '<div class="icon"><img src="' . Config::ROOT_ADDRESS . 'smallprotected.png"></div>';
+                $protected = '<div class="icon"><img src="/smallprotected.png"></div>';
             }
             return $protected;
         } else if ($this->config['icon'] == 'middle') {
             if ($protected) {
-                $protected = '<img class="protected" src="' . Config::ROOT_ADDRESS . 'smallprotected.png">';
+                $protected = '<img class="protected" src="/smallprotected.png">';
             }
             $class = 'iconmiddle';
         } else if ($this->config['icon'] == 'small') {
             if ($protected) {
-                $protected = '<img class="protected" src="' . Config::ROOT_ADDRESS . 'smallprotected.png">';
+                $protected = '<img class="protected" src="/smallprotected.png">';
             }
             $class = 'iconsmall';
         } else {
             if ($protected) {
-                $protected = '<img class="protected" src="' . Config::ROOT_ADDRESS . 'protected.png">';
+                $protected = '<img class="protected" src="/protected.png">';
             }
             $class = 'icon';
         }

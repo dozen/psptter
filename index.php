@@ -38,7 +38,7 @@ if ($_GET['status_id']) {
     <body>
         <div id="header">
             <?php echo Page::MenuBar() ?>
-            <form name="post" method="post" action="<?php echo Config::ROOT_ADDRESS ?>send.php">
+            <form name="post" method="post" action="/send.php">
                 <input type="hidden" name="id">
                 <textarea name="tweet" onkeydown="strCount()" onkeydown="strCount()" onkeyup="strCount()" onkeypress="strCount()" onChange="strCount()"></textarea>
                 <input type="submit" class="button"<?php echo Page::tweetByLojax() ?> value="ツイート"> <span id="strcount">　</span>
@@ -51,7 +51,7 @@ if ($_GET['status_id']) {
             <div class="<?php echo $twitter->JudgeReply($line->text) ?>">
                 <?php echo $page->IconStyle($line->user->profile_image_url, $line->user->protected) ?>
                 <div class="<?php echo $page->textStyle() ?>">
-                    <a href="<?php echo Config::ROOT_ADDRESS . $line->user->screen_name ?>/"><?php echo $line->user->screen_name ?></a> <span class="small"><?php echo $line->user->name ?>　<?php echo $line->source ?>から</span><br>
+                    <a href="/<?php echo $line->user->screen_name ?>/"><?php echo $line->user->screen_name ?></a> <span class="small"><?php echo $line->user->name ?>　<?php echo $line->source ?>から</span><br>
                     <?php echo Twitter::StatusProcessing($line->text) ?>
                 </div>
                 <div class="buttonbar">

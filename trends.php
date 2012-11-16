@@ -37,7 +37,7 @@ $status = $twitter->GetStatus('trends');
             <div style="text-align:right">
                 <a href="/help.html">HELP</a>
                 <a href="/kumobbs/" target="blank">掲示板</a>
-                <?php echo $stopwatch->Show() ?> <a href="<?php echo Config::ROOT_ADDRESS ?>?logout">logout</a>
+                <?php echo $stopwatch->Show() ?> <a href="/?logout">logout</a>
             </div>
         </div>
     </body>

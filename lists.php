@@ -39,7 +39,7 @@ $status = $twitter->GetStatus('lists', $_GET);
             <div class="normal">
                 <?php echo $page->IconStyle($line->user->profile_image_url, $line->user->protected) ?>
                 <div class="text">
-                    <a href="<?php echo Config::ROOT_ADDRESS . 'list/' . $line->id ?>/"><?php echo $line->name ?></a> <span class="small"><a href="<?php echo Config::ROOT_ADDRESS . $line->user->screen_name ?>/"><?php echo $line->user->screen_name ?></a>が作成</span><br>
+                    <a href="/list/<?php echo $line->id ?>/"><?php echo $line->name ?></a> <span class="small"><a href="/<?php echo $line->user->screen_name ?>/"><?php echo $line->user->screen_name ?></a>が作成</span><br>
                     <?php echo $line->description ?>
                 </div>
                 <div class="buttonbar">
@@ -58,7 +58,7 @@ $status = $twitter->GetStatus('lists', $_GET);
             <div style="text-align:right">
                 <a href="/help.html">HELP</a>
                 <a href="/kumobbs/" target="blank">掲示板</a>
-                <?php echo page::showStatus(); ?> <?php echo $stopwatch->Show() ?> <a href="<?php echo Config::ROOT_ADDRESS ?>?logout">logout</a>
+                <?php echo page::showStatus(); ?> <?php echo $stopwatch->Show() ?> <a href="/?logout">logout</a>
             </div>
         </div>
     </body>

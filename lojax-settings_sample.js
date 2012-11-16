@@ -9,7 +9,7 @@ var lojax =
 	//"auto" = use xhr or lojax as supported
 	//"lojax" = use lojax for all
 	//"none" = use only xhr (disable this script)
-	'implementation' : 'auto',
+	'implementation' : 'lojax',
 
 	//client time-out for abandoning a request (seconds)
 	'timeout' : 180,

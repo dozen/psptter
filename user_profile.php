@@ -28,7 +28,7 @@ if ($_GET['screen_name']) {
     <body>
         <div id="header">
             <?php echo Page::MenuBar() ?>
-            <form name="post" method="post" action="<?php echo Config::ROOT_ADDRESS ?>send.php">
+            <form name="post" method="post" action="/send.php">
                 <input type="hidden" name="id">
                 <textarea name="tweet" onkeydown="strCount()" onChange="strCount()"></textarea>
                 <input type="submit" class="button"<?php echo Page::tweetByLojax() ?> value="ツイート"> <span id="strcount">　</span>
@@ -37,7 +37,7 @@ if ($_GET['screen_name']) {
                 <div class="icon"><img src="<?php echo $twitter->profile->profile_image_url ?>" class="icon"></div>
                 <div class="text">
                     <span style="font-size:x-large"><?php echo $twitter->profile->screen_name . ' / ' . $twitter->profile->name ?>　</span><?php echo $twitter->profile->location ?><br>
-                    ツイート: <?php echo $twitter->profile->statuses_count ?>　フォロー: <a href="<?php echo Config::ROOT_ADDRESS . 'friends/' . $twitter->profile->screen_name ?>/"><?php echo $twitter->profile->friends_count ?></a>　フォロワー: <a href="<?php echo Config::ROOT_ADDRESS . 'followers/' . $twitter->profile->screen_name ?>/"><?php echo $twitter->profile->followers_count ?></a>　<?php echo $twitter->Follow($twitter->profile->id, $twitter->profile->following) ?>　<a href="/lists/<?php echo $twitter->profile->screen_name ?>">リスト</a><br>
+                    ツイート: <?php echo $twitter->profile->statuses_count ?>　フォロー: <a href="/friends/<?php echo $twitter->profile->screen_name ?>/"><?php echo $twitter->profile->friends_count ?></a>　フォロワー: <a href="/followers/<?php echo $twitter->profile->screen_name ?>/"><?php echo $twitter->profile->followers_count ?></a>　<?php echo $twitter->Follow($twitter->profile->id, $twitter->profile->following) ?>　<a href="/lists/<?php echo $twitter->profile->screen_name ?>">リスト</a><br>
                     <?php echo Twitter::StatusProcessing($twitter->profile->description) ?>
                 </div>
                 <div style="clear:both"></div>
@@ -47,7 +47,7 @@ if ($_GET['screen_name']) {
             <div class="normal">
                 <?php echo $page->IconStyle($line->user->profile_image_url, $line->user->protected) ?>
                 <div class="<?php echo $page->textStyle() ?>">
-                    <a href="<?php echo Config::ROOT_ADDRESS . $line->user->screen_name ?>/"><?php echo $line->user->screen_name ?></a> <span class="small"><?php echo $line->user->name ?>　<?php echo $line->source ?>から</span><br>
+                    <a href="/<?php echo $line->user->screen_name ?>/"><?php echo $line->user->screen_name ?></a> <span class="small"><?php echo $line->user->name ?>　<?php echo $line->source ?>から</span><br>
                     <?php echo Twitter::StatusProcessing($line->text) ?>
                 </div>
                 <div class="buttonbar">
@@ -66,7 +66,7 @@ if ($_GET['screen_name']) {
             <div style="text-align:right">
                 <a href="/help.html">HELP</a>
                 <a href="/kumobbs/" target="blank">掲示板</a>
-                <?php echo page::showStatus(); ?> <?php echo $stopwatch->Show() ?> <a href="<?php echo Config::ROOT_ADDRESS ?>?logout">logout</a>
+                <?php echo page::showStatus(); ?> <?php echo $stopwatch->Show() ?> <a href="/?logout">logout</a>
             </div>
         </div>
         <?php

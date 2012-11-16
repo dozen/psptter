@@ -29,7 +29,7 @@ if (isset($_GET['debug'])) {
     <body>
         <div id="header">
             <?php echo Page::MenuBar() ?>
-            <form name="post" method="post" action="<?php echo Config::ROOT_ADDRESS ?>send.php">
+            <form name="post" method="post" action="/send.php">
                 <input type="hidden" name="id">
                 <textarea name="tweet" onkeydown="strCount()" onChange="strCount()"></textarea>
                 <input type="submit" class="button"<?php echo Page::tweetByLojax() ?>  value="ツイート"> <span id="strcount">　</span>
@@ -38,7 +38,7 @@ if (isset($_GET['debug'])) {
                 <div class="icon"><img src="<?php echo $twitter->profile->profile_image_url ?>" class="icon"></div>
                 <div class="text">
                     <span style="font-size:x-large"><?php echo $twitter->profile->screen_name . ' / ' . $twitter->profile->name ?>　</span><?php echo $twitter->profile->location ?><br>
-                    ツイート: <?php echo $twitter->profile->statuses_count ?>　フォロー: <a href="<?php echo Config::ROOT_ADDRESS . 'friends/' . $twitter->profile->screen_name ?>/"><?php echo $twitter->profile->friends_count ?></a>　フォロワー: <a href="<?php echo Config::ROOT_ADDRESS . 'followers/' . $twitter->profile->screen_name ?>/"><?php echo $twitter->profile->followers_count ?></a>　<?php echo $twitter->Follow($twitter->profile->id, $twitter->profile->following) ?><br>
+                    ツイート: <?php echo $twitter->profile->statuses_count ?>　フォロー: <a href="/friends/<?php echo $twitter->profile->screen_name ?>/"><?php echo $twitter->profile->friends_count ?></a>　フォロワー: <a href="/followers/<?php echo $twitter->profile->screen_name ?>/"><?php echo $twitter->profile->followers_count ?></a>　<?php echo $twitter->Follow($twitter->profile->id, $twitter->profile->following) ?><br>
                     <?php echo Twitter::StatusProcessing($twitter->profile->description) ?>
                 </div>
                 <div style="clear:both"></div>
@@ -48,7 +48,7 @@ if (isset($_GET['debug'])) {
             <div class="normal">
                 <?php echo $page->IconStyle($line->profile_image_url, $line->protected) ?>
                 <div class="<?php echo $page->textStyle() ?>">
-                    <a href="<?php echo Config::ROOT_ADDRESS . $line->screen_name ?>/"><?php echo $line->screen_name ?></a> <span class="small"><?php echo $line->name ?></span> <?php echo $twitter->Follow($line->id, $line->following) ?><br>
+                    <a href="/<?php echo $line->screen_name ?>/"><?php echo $line->screen_name ?></a> <span class="small"><?php echo $line->name ?></span> <?php echo $twitter->Follow($line->id, $line->following) ?><br>
                     <?php echo Twitter::StatusProcessing($line->description) ?>
                 </div>
                 <div style="clear:both"></div>
