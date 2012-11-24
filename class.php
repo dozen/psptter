@@ -206,6 +206,8 @@ class Twitter {
         } else if ($type == false) {
             //ホームタイムライン
             $type = 'statuses/home_timeline';
+        } else if ($type == 'dm') {
+            $type = 'direct_messages';
         }
         $this->status = $this->api->get($type, $option);
         httpStatus($this->api);
@@ -560,7 +562,7 @@ class Page {
   <a href="/retweeted_to_me/">みんなのRT</a>
   <a href="/favorites/">ふぁぼ</a>
   <a href="/search/">検索</a>
-  <a href="/lists/">リスト</a>
+  <a href="/lists/' . OAuthData::$account['screen_name'] . '">リスト</a>
   <a href="/trends/">トレンド</a>
   <a href="/setting/">設定</a>
   </div>';

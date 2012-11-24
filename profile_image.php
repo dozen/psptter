@@ -16,11 +16,10 @@ if ($_FILES['image']) {
     /**
      * custom space of Request
      */
-    $url = 'http://api.twitter.com/1/account/update_profile_image.json';
+    $url = 'https://api.twitter.com/1/account/update_profile_image.json';
     $method = 'POST';
     $post = array();
     $image_path = $_FILES['image']['tmp_name']; // path or null
-
     /* ------------------------------------------------------- */
 
     function params2Authorization($params) {
@@ -71,7 +70,7 @@ if ($_FILES['image']) {
         "Expect:"
     );
 
-    if (isset($image_path)) {
+    if ($image_path) {
         $boundary = "--poochin_boundary";
         $body_field = "--{$boundary}\r\n"
                 . "Content-Disposition: form-data; name=\"image\"; filename=\"" . basename($image_path) . "\"\r\n"
@@ -107,7 +106,11 @@ if ($_FILES['image']) {
     fwrite($fp, "\r\n");
     fwrite($fp, (isset($body_field) ? $body_field : ""));
 
-    $response = fread($fp, 120);
+    //$response = fread($fp, 120);
+    echo '<pre>';
+    var_dump(fread($fp, 20000));
+    echo '</pre>';
+    exit;
     $pattern = '/HTTP\/1.1\s([0-9]{3})/';
     preg_match($pattern, $response, $matches);
     fclose($fp);
