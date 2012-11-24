@@ -562,7 +562,7 @@ class Page {
   <a href="/retweeted_to_me/">みんなのRT</a>
   <a href="/favorites/">ふぁぼ</a>
   <a href="/search/">検索</a>
-  <a href="/lists/' . OAuthData::$account['screen_name'] . '">リスト</a>
+  <a href="/lists/' . OAuthData::$account['screen_name'] . '/">リスト</a>
   <a href="/trends/">トレンド</a>
   <a href="/setting/">設定</a>
   </div>';
