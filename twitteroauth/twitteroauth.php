@@ -202,13 +202,6 @@ class TwitterOAuth {
     }
   }
 
-  //画像アップ関数
-  function oAuthRequestImage($url, $method = NULL, $args = array()) {//この行の引数と順序変わってます
-    $req = OAuthRequest::from_consumer_and_token($this->consumer, $this->token, $method, $url, array());
-    $req->sign_request($this->sha1_method, $this->consumer, $this->token);
-    return $this->http($req->get_normalized_http_url(), $method, $args, $req->to_header()); //この行の引数と順序変わってます
-  }
-
   /**
    * Make an HTTP request
    *

@@ -45,5 +45,5 @@ function tweetStatus() {
     }
     request.open('POST', '/sendlojax.php', true);
     request.setRequestHeader('Content-type', 'text/plain;charset=utf-8');
-    request.send('tweet=' + text + '&id=' + tweetID);
+    request.send('tweet=' + encodeURIComponent(text) + '&id=' + tweetID);
 }
